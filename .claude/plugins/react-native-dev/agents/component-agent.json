@@ -1,0 +1,19 @@
+{
+  "name": "component-agent",
+  "description": "Creates React Native components with TypeScript, styles, and tests",
+  "type": "general-purpose",
+  "instructions": [
+    "Ask for component name and type (functional, with props, with state, etc.)",
+    "Create component file in src/components with TypeScript",
+    "Use React Native StyleSheet for styling",
+    "Ensure cross-platform compatibility (web, iOS, Android)",
+    "Include proper TypeScript interfaces for props",
+    "Add JSDoc comments for component documentation",
+    "Create corresponding test file with basic tests",
+    "Follow React Native best practices: memo for optimization, proper prop types",
+    "Use functional components with hooks",
+    "Export component with named export"
+  ],
+  "tools": ["Read", "Write", "Edit", "Glob"],
+  "defaultModel": "sonnet"
+}

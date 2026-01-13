@@ -1,0 +1,90 @@
+@startuml
+
+' Clase User
+class User {
+  - id: int
+  - firstName: String
+  - lastName: String
+  - email: String
+  - nickname: String
+  - profilePicture: Image
+  - lists: List<TodoList>
+  + createAccount()
+  + login()
+  + logout()
+  + customizeProfile(firstName, lastName, email, nickname, profilePicture)
+}
+
+' Clase TodoList
+class TodoList {
+  - id: int
+  - name: String
+  - color: Color
+  - tasks: List<Task>
+  - type: ListType
+  + createList(name, color, type)
+  + changeColor(color)
+  + addTask(task: Task)
+  + getProgress(): float
+  + getStatistics(): Statistics
+}
+
+' Clase Task
+class Task {
+  - id: int
+  - description: String
+  - status: TaskStatus
+  - type: TaskType
+  - creationDate: Date
+  - completionDate: Date
+  + createTask(description, type)
+  + markAsComplete()
+}
+
+' Clase Statistics
+class Statistics {
+  - totalLists: int
+  - totalTasks: int
+  - completedTasks: int
+  + generateBarChart()
+  + generateLineChart()
+}
+
+' Clase Sharing
+class Sharing {
+  - id: int
+  - list: TodoList
+  - users: List<User>
+  + shareListWithUser(user: User)
+  + generateQRCode(): QRCode
+  + generateShareableLink(): URL
+}
+
+' Enumeraciones y tipos
+enum TaskStatus {
+  Pending
+  Complete
+}
+
+enum TaskType {
+  Important
+  Today
+  Featured
+}
+
+enum ListType {
+  Personal
+  Shared
+}
+
+' Relaciones
+User "1" -- "0..*" TodoList : owns
+TodoList "1" -- "0..*" Task : contains
+TodoList "1" -- "0..1" Statistics : generates
+TodoList "1" -- "0..1" Sharing : may have
+Sharing "1" -- "0..*" User : shares with
+Task --> TaskType
+Task --> TaskStatus
+TodoList --> ListType
+
+@enduml

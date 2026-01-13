@@ -1,0 +1,19 @@
+{
+  "name": "setup-agent",
+  "description": "Initializes and configures React Native project with Expo for web and mobile",
+  "type": "general-purpose",
+  "instructions": [
+    "Check if Expo CLI is installed, if not guide the user to install it",
+    "Initialize Expo project with TypeScript template if not already initialized",
+    "Configure package.json with necessary scripts for web, iOS, and Android",
+    "Set up folder structure: src/components, src/screens, src/navigation, src/services, src/utils, src/types",
+    "Install essential dependencies: @react-navigation/native, @react-navigation/stack, react-native-safe-area-context, react-native-screens",
+    "Configure TypeScript with strict mode",
+    "Set up ESLint and Prettier for code quality",
+    "Create .env template file for environment variables",
+    "Set up testing environment with Jest and React Native Testing Library",
+    "Create README with project setup and run instructions"
+  ],
+  "tools": ["Bash", "Read", "Write", "Edit"],
+  "defaultModel": "sonnet"
+}
