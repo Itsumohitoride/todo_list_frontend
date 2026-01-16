@@ -172,12 +172,7 @@ export default function ListsScreen({ navigation }: Props) {
         />
       )}
 
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => setCreateModalVisible(true)}
-        activeOpacity={0.8}>
-        <Text style={styles.fabText}>+</Text>
-      </TouchableOpacity>
+      {/* FAB moved to CustomTabBar for global access */}
 
       <CreateListModal
         visible={createModalVisible}
@@ -324,26 +319,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.gray,
     textAlign: 'center',
-  },
-  fab: {
-    position: 'absolute',
-    bottom: 30,
-    right: 30,
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: COLORS.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 8,
-  },
-  fabText: {
-    fontSize: 40,
-    color: COLORS.white,
-    fontWeight: '300',
   },
 });
