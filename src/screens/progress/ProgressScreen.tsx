@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Dimensions, Platform } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { LineChart, BarChart } from 'react-native-chart-kit';
 import { COLORS } from '../../utils/colors';
 import { useAuthStore } from '../../store/authStore';
@@ -79,10 +80,14 @@ export default function ProgressScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Estadísticas</Text>
+      <LinearGradient
+        colors={[COLORS.primary, COLORS.primaryLight]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.header}>
+        <Text style={styles.headerTitle}>Estadísticas 📊</Text>
         <Text style={styles.headerSubtitle}>Tu progreso y productividad</Text>
-      </View>
+      </LinearGradient>
 
       <View style={styles.statsGrid}>
         <StatCard
@@ -95,25 +100,25 @@ export default function ProgressScreen() {
           title="Tareas Totales"
           value={statistics.totalTasks}
           icon="checkbox-outline"
-          color="#5B82A3"
+          color={COLORS.secondary}
         />
         <StatCard
           title="Completadas"
           value={statistics.completedTasks}
           icon="checkmark-circle-outline"
-          color="#65CF71"
+          color={COLORS.success}
         />
         <StatCard
           title="Pendientes"
           value={statistics.pendingTasks}
           icon="time-outline"
-          color="#FF9500"
+          color={COLORS.warning}
         />
         <StatCard
           title="Tasa de Completitud"
           value={`${statistics.completionRate.toFixed(1)}%`}
           icon="stats-chart-outline"
-          color={statistics.completionRate >= 70 ? '#65CF71' : statistics.completionRate >= 40 ? '#FF9500' : '#F7393C'}
+          color={statistics.completionRate >= 70 ? COLORS.success : statistics.completionRate >= 40 ? COLORS.warning : COLORS.danger}
           subtitle={
             statistics.completionRate >= 70
               ? '¡Excelente trabajo!'
@@ -204,54 +209,52 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   header: {
-    backgroundColor: COLORS.primary,
     paddingTop: 60,
-    paddingBottom: 32,
+    paddingBottom: 30,
     paddingHorizontal: 24,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
     marginBottom: 24,
     shadowColor: COLORS.shadowDark,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 5,
   },
   headerTitle: {
-    fontSize: 36,
+    fontSize: 32,
     fontWeight: '800',
     color: COLORS.white,
-    marginBottom: 8,
-    letterSpacing: -0.5,
+    marginBottom: 6,
+    ...(Platform.OS === 'web' && {
+      textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    }),
   },
   headerSubtitle: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '500',
-    color: COLORS.white,
-    opacity: 0.95,
+    color: 'rgba(255, 255, 255, 0.9)',
   },
   statsGrid: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
   },
   chartSection: {
-    paddingHorizontal: 24,
-    marginTop: 24,
+    paddingHorizontal: 20,
+    marginTop: 20,
   },
   chartTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: COLORS.textPrimary,
-    marginBottom: 6,
-    letterSpacing: -0.3,
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: COLORS.black,
+    marginBottom: 5,
   },
   chartSubtitle: {
     fontSize: 14,
-    fontWeight: '500',
-    color: COLORS.textSecondary,
-    marginBottom: 18,
+    color: COLORS.gray,
+    marginBottom: 15,
   },
   chart: {
-    marginVertical: 10,
-    borderRadius: 20,
+    marginVertical: 8,
+    borderRadius: 16,
   },
 });

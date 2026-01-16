@@ -1,60 +1,65 @@
 export const COLORS = {
-  // Colores principales del diseño
-  primary: '#399EF7',
-  primaryDark: '#2D7FCC',
-  primaryLight: '#6BB4FA',
-  secondary: '#5BB2A3',
-  success: '#65CF71',
-  successLight: '#8FDF9D',
-  danger: '#F7393C',
-  dangerLight: '#FF6B6D',
+  // Colores principales - Paleta moderna Morado/Azul
+  primary: '#6C5CE7',        // Morado vibrante
+  primaryDark: '#5849C7',    // Morado oscuro
+  primaryLight: '#A29BFE',   // Morado claro
+  secondary: '#00B894',      // Verde esmeralda
+  accent: '#FD79A8',         // Rosa coral
 
-  // Colores de fondo y texto
-  background: '#F8F9FA',
-  backgroundDark: '#ECEEF1',
+  // Estados
+  success: '#00D2A0',        // Verde éxito
+  successLight: '#55EFC4',   // Verde claro
+  danger: '#FF6B9D',         // Rosa/rojo suave
+  dangerLight: '#FF8DB9',    // Rosa claro
+  warning: '#FDCB6E',        // Amarillo cálido
+  warningLight: '#FFE0A3',   // Amarillo muy claro
+
+  // Backgrounds - Gradientes sutiles
+  background: '#F8F9FD',     // Blanco azulado muy suave
+  backgroundSecondary: '#FAFAFC', // Blanco grisáceo
+  backgroundDark: '#E8EBFA', // Azul grisáceo muy claro
+  cardBackground: '#FFFFFF', // Blanco puro para cards
+
+  // Textos
   white: '#FFFFFF',
-  black: '#1A1A1A',
-  textPrimary: '#1A1A1A',
-  textSecondary: '#576978',
+  black: '#2D3436',          // Negro azulado
+  textPrimary: '#2D3436',    // Negro azulado
+  textSecondary: '#636E72',  // Gris medio
+  textLight: '#A4B0BD',      // Gris claro
 
-  // Grises
-  darkGray: '#262D33',
-  mediumGray: '#45494D',
-  gray: '#576978',
-  lightGray: '#E5E5EA',
-  border: '#E8EBED',
+  // Grises modernos
+  darkGray: '#2D3436',
+  mediumGray: '#636E72',
+  gray: '#A4B0BD',
+  lightGray: '#DFE6E9',
+  border: '#E8EDF2',
 
-  // Colores adicionales
-  warning: '#FF9500',
-  warningLight: '#FFB340',
-  info: '#399EF7',
+  // Información
+  info: '#74B9FF',           // Azul cielo
 
   // Sombras
-  shadow: 'rgba(0, 0, 0, 0.08)',
-  shadowDark: 'rgba(0, 0, 0, 0.15)',
+  shadow: 'rgba(108, 92, 231, 0.08)',      // Sombra con tinte morado
+  shadowMedium: 'rgba(108, 92, 231, 0.12)',
+  shadowDark: 'rgba(45, 52, 54, 0.15)',
+
+  // Gradientes
+  gradientStart: '#6C5CE7',
+  gradientEnd: '#A29BFE',
+  gradientSuccess: '#00D2A0',
+  gradientSuccessEnd: '#55EFC4',
 };
 
 export const LIST_COLORS = [
-  '#65CF71',  // Verde
-  '#399EF7',  // Azul
-  '#5BB2A3',  // Turquesa
-  '#F7393C',  // Rojo
-  '#FF9500',  // Naranja
-  '#5293CC',  // Azul medio
-  '#FFD60A',  // Amarillo
-  '#BF5AF2',  // Púrpura
-  '#FF375F',  // Rosa
-  '#30D158',  // Verde lima
+  '#6C5CE7',  // Morado vibrante
+  '#00B894',  // Verde esmeralda
+  '#FD79A8',  // Rosa coral
+  '#74B9FF',  // Azul cielo
+  '#FDCB6E',  // Amarillo cálido
+  '#FF6B9D',  // Rosa/rojo
+  '#A29BFE',  // Lavanda
+  '#55EFC4',  // Menta
+  '#FAB1A0',  // Melocotón
+  '#81ECEC',  // Turquesa
+  '#FF7675',  // Rojo coral
+  '#FD79A8',  // Rosa fuerte
 ];
-
-// Gradientes modernos
-export const GRADIENTS = {
-  primary: ['#399EF7', '#2D7FCC'],
-  success: ['#65CF71', '#4CAF50'],
-  danger: ['#F7393C', '#E53935'],
-  warning: ['#FF9500', '#FB8C00'],
-  purple: ['#BF5AF2', '#9C27B0'],
-  ocean: ['#399EF7', '#5BB2A3'],
-  sunset: ['#FF9500', '#F7393C'],
-  forest: ['#65CF71', '#30D158'],
-};

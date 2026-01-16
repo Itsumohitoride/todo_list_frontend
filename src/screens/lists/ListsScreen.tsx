@@ -8,11 +8,12 @@ import {
   ActivityIndicator,
   TextInput,
   RefreshControl,
+  Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { COLORS, GRADIENTS } from '../../utils/colors';
+import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '../../utils/colors';
 import { useListsStore } from '../../store/listsStore';
 import { useAuthStore } from '../../store/authStore';
 import { useResponsive } from '../../utils/responsive';
@@ -122,56 +123,50 @@ export default function ListsScreen({ navigation }: Props) {
 
   const renderHeader = () => (
     <LinearGradient
-      colors={GRADIENTS.primary}
+      colors={[COLORS.primary, COLORS.primaryLight]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.header}>
-
-      {/* Decorative elements */}
-      <View style={styles.headerDecoration1} />
-      <View style={styles.headerDecoration2} />
-
       <View style={styles.headerContent}>
         <View style={styles.headerTop}>
-          <View style={styles.avatarContainer}>
-            {user && (
-              <LinearGradient
-                colors={['rgba(255, 255, 255, 0.3)', 'rgba(255, 255, 255, 0.1)']}
-                style={styles.avatar}>
-                <Text style={styles.avatarText}>
-                  {user.firstName.charAt(0).toUpperCase()}
-                </Text>
-              </LinearGradient>
-            )}
+          <View>
+            <Text style={styles.greeting}>
+              Hola, {user?.firstName || 'Usuario'} 👋
+            </Text>
+            <Text style={styles.subtitle}>
+              {lists.length === 0
+                ? 'No tienes listas aún'
+                : `${lists.length} ${lists.length === 1 ? 'lista' : 'listas'}`}
+            </Text>
           </View>
-          <View style={styles.searchContainer}>
-            <View style={styles.searchInputContainer}>
-              <Ionicons name="search" size={20} color={COLORS.gray} style={styles.searchIcon} />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Buscar listas..."
-                placeholderTextColor={COLORS.gray}
-                value={searchQuery}
-                onChangeText={handleSearchChange}
-              />
-              {searching && (
-                <View style={styles.searchingIndicator}>
-                  <ActivityIndicator size="small" color={COLORS.primary} />
-                </View>
-              )}
+          {user && (
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>
+                {user.firstName.charAt(0).toUpperCase()}
+              </Text>
             </View>
-          </View>
+          )}
         </View>
-        <Text style={styles.greeting}>
-          👋 Hola, {user?.firstName || 'Usuario'}
-        </Text>
-        <View style={styles.subtitleContainer}>
-          <Ionicons name="albums" size={16} color={COLORS.white} />
-          <Text style={styles.subtitle}>
-            {lists.length === 0
-              ? 'No tienes listas aún'
-              : `${lists.length} ${lists.length === 1 ? 'lista' : 'listas'}`}
-          </Text>
+
+        <View style={styles.searchWrapper}>
+          <Ionicons
+            name="search"
+            size={20}
+            color={COLORS.textSecondary}
+            style={styles.searchIcon}
+          />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Buscar listas..."
+            placeholderTextColor={COLORS.textLight}
+            value={searchQuery}
+            onChangeText={handleSearchChange}
+          />
+          {searching && (
+            <View style={styles.searchingIndicator}>
+              <ActivityIndicator size="small" color={COLORS.primary} />
+            </View>
+          )}
         </View>
       </View>
     </LinearGradient>
@@ -272,113 +267,85 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingTop: 60,
-    paddingBottom: 32,
-    paddingHorizontal: 24,
-    borderBottomLeftRadius: 35,
-    borderBottomRightRadius: 35,
+    paddingBottom: 25,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
     shadowColor: COLORS.shadowDark,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 10,
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  headerDecoration1: {
-    position: 'absolute',
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    top: -80,
-    right: -50,
-  },
-  headerDecoration2: {
-    position: 'absolute',
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    bottom: -40,
-    left: -30,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 5,
   },
   headerContent: {
-    zIndex: 1,
+    paddingHorizontal: 24,
   },
   headerTop: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
-    gap: 16,
-  },
-  avatarContainer: {
-    width: 56,
-    height: 56,
+    marginBottom: 20,
   },
   avatar: {
     width: 56,
     height: 56,
     borderRadius: 28,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderWidth: 3,
+    borderColor: COLORS.white,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    shadowColor: COLORS.shadowDark,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   avatarText: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '800',
     color: COLORS.white,
   },
-  searchContainer: {
-    flex: 1,
+  greeting: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: COLORS.white,
+    marginBottom: 6,
+    ...(Platform.OS === 'web' && {
+      textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    }),
   },
-  searchInputContainer: {
-    backgroundColor: COLORS.white,
-    borderRadius: 28,
+  subtitle: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontWeight: '500',
+  },
+  searchWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: COLORS.white,
+    borderRadius: 20,
     paddingHorizontal: 16,
+    paddingVertical: 12,
     shadowColor: COLORS.shadowDark,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   searchIcon: {
-    marginRight: 8,
+    marginRight: 12,
   },
   searchInput: {
     flex: 1,
-    paddingVertical: 14,
     fontSize: 16,
     color: COLORS.textPrimary,
+    fontWeight: '500',
   },
   searchingIndicator: {
     marginLeft: 8,
   },
-  greeting: {
-    fontSize: 34,
-    fontWeight: '800',
-    color: COLORS.white,
-    marginBottom: 10,
-    letterSpacing: -0.5,
-    textShadowColor: 'rgba(0, 0, 0, 0.15)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
-  },
-  subtitleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.white,
-    opacity: 0.95,
-  },
   listContainer: {
-    padding: 24,
+    padding: 20,
     paddingBottom: 100,
   },
   listCardWrapper: {
