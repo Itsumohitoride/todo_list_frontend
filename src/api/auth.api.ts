@@ -15,6 +15,12 @@ interface RegisterData {
   password: string;
 }
 
+interface UpdateProfileData {
+  firstName: string;
+  lastName: string;
+  nickname: string;
+}
+
 interface ErrorResponse {
   status?: number;
   error?: string;
@@ -76,6 +82,22 @@ export const authApi = {
     } catch (error) {
       const axiosError = error as AxiosError<ErrorResponse>;
       throw axiosError.response?.data?.message || 'Error al obtener usuario';
+    }
+  },
+
+  /**
+   * Update user profile
+   * @param userId - User ID
+   * @param profileData - Updated profile data
+   * @returns Updated AuthResponse
+   */
+  updateProfile: async (userId: string, profileData: UpdateProfileData): Promise<AuthResponse> => {
+    try {
+      const response = await apiClient.put<AuthResponse>(`/users/${userId}`, profileData);
+      return response.data;
+    } catch (error) {
+      const axiosError = error as AxiosError<ErrorResponse>;
+      throw axiosError.response?.data?.message || 'Error al actualizar perfil';
     }
   },
 };

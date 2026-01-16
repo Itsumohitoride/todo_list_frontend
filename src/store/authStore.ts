@@ -12,6 +12,12 @@ interface RegisterData {
   password: string;
 }
 
+interface UpdateProfileData {
+  firstName: string;
+  lastName: string;
+  nickname: string;
+}
+
 interface AuthState {
   user: User | null;
   token: string | null;
@@ -24,6 +30,7 @@ interface AuthState {
   register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
   loadToken: () => Promise<void>;
+  updateUserProfile: (data: UpdateProfileData) => Promise<void>;
   clearError: () => void;
 }
 
@@ -206,6 +213,43 @@ export const useAuthStore = create<AuthState>((set) => ({
         isLoading: false,
         error: 'Error al cargar sesión',
       });
+    }
+  },
+
+  updateUserProfile: async (data: UpdateProfileData) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const currentUser = useAuthStore.getState().user;
+      if (!currentUser) {
+        throw new Error('No hay usuario autenticado');
+      }
+
+      const response: AuthResponse = await authApi.updateProfile(currentUser.userId, data);
+
+      const updatedUser: User = {
+        userId: response.userId,
+        email: response.email,
+        firstName: response.firstName,
+        lastName: response.lastName,
+        nickname: response.nickname,
+        role: response.role,
+      };
+
+      await saveUser(updatedUser);
+
+      set({
+        user: updatedUser,
+        isLoading: false,
+        error: null,
+      });
+    } catch (error) {
+      const errorMessage = typeof error === 'string' ? error : 'Error al actualizar perfil';
+      set({
+        isLoading: false,
+        error: errorMessage,
+      });
+      throw error;
     }
   },
 

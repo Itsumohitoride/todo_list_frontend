@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../../store/authStore';
 import { COLORS } from '../../utils/colors';
+import EditProfileModal from '../../components/modals/EditProfileModal';
 
 export default function ProfileScreen() {
   const { user, logout, isLoading } = useAuthStore();
+  const [editModalVisible, setEditModalVisible] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -54,6 +57,13 @@ export default function ProfileScreen() {
         </View>
 
         <TouchableOpacity
+          style={styles.editButton}
+          onPress={() => setEditModalVisible(true)}>
+          <Ionicons name="create-outline" size={20} color={COLORS.primary} />
+          <Text style={styles.editButtonText}>Editar Perfil</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
           style={[styles.logoutButton, isLoading && styles.buttonDisabled]}
           onPress={handleLogout}
           disabled={isLoading}>
@@ -64,6 +74,11 @@ export default function ProfileScreen() {
           )}
         </TouchableOpacity>
       </View>
+
+      <EditProfileModal
+        visible={editModalVisible}
+        onClose={() => setEditModalVisible(false)}
+      />
     </View>
   );
 }
@@ -123,6 +138,23 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: COLORS.black,
     fontWeight: '600',
+  },
+  editButton: {
+    backgroundColor: COLORS.white,
+    padding: 18,
+    borderRadius: 25,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
+    marginBottom: 15,
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+  },
+  editButtonText: {
+    color: COLORS.primary,
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   logoutButton: {
     backgroundColor: COLORS.danger,
