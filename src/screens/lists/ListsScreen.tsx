@@ -109,55 +109,26 @@ export default function ListsScreen({ navigation }: Props) {
 
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
-      <Text style={styles.emptyTitle}>¡Crea Una Lista!</Text>
-      <Text style={styles.emptySubtitle}>
-        Comienza organizando tus tareas
-      </Text>
-      <TouchableOpacity
-        style={styles.emptyButton}
-        onPress={() => setCreateModalVisible(true)}>
-        <Text style={styles.emptyButtonText}>+</Text>
-      </TouchableOpacity>
+      <View style={styles.emptyTextContainer}>
+        <Text style={styles.emptyTitleBlack}>Crea Una</Text>
+        <Text style={styles.emptyTitleBlue}>¡Lista!</Text>
+      </View>
     </View>
   );
 
   const renderHeader = () => (
-    <LinearGradient
-      colors={[COLORS.primary, COLORS.primaryLight]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.header}>
+    <View style={styles.header}>
       <View style={styles.headerContent}>
-        <View style={styles.headerTop}>
-          <View>
-            <Text style={styles.greeting}>
-              Hola, {user?.firstName || 'Usuario'} 👋
-            </Text>
-            <Text style={styles.subtitle}>
-              {lists.length === 0
-                ? 'No tienes listas aún'
-                : `${lists.length} ${lists.length === 1 ? 'lista' : 'listas'}`}
-            </Text>
+        {user && (
+          <View style={styles.avatar}>
+            <Ionicons name="person" size={28} color={COLORS.gray} />
           </View>
-          {user && (
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>
-                {user.firstName.charAt(0).toUpperCase()}
-              </Text>
-            </View>
-          )}
-        </View>
+        )}
 
         <View style={styles.searchWrapper}>
-          <Ionicons
-            name="search"
-            size={20}
-            color={COLORS.textSecondary}
-            style={styles.searchIcon}
-          />
           <TextInput
             style={styles.searchInput}
-            placeholder="Buscar listas..."
+            placeholder=""
             placeholderTextColor={COLORS.textLight}
             value={searchQuery}
             onChangeText={handleSearchChange}
@@ -168,8 +139,12 @@ export default function ListsScreen({ navigation }: Props) {
             </View>
           )}
         </View>
+
+        <TouchableOpacity style={styles.searchButton}>
+          <Ionicons name="search" size={28} color={COLORS.darkGray} />
+        </TouchableOpacity>
       </View>
-    </LinearGradient>
+    </View>
   );
 
   if (isLoading && lists.length === 0) {
@@ -266,83 +241,49 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   header: {
-    paddingTop: 60,
-    paddingBottom: 25,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    shadowColor: COLORS.shadowDark,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 5,
+    backgroundColor: COLORS.backgroundSecondary,
+    paddingTop: 50,
+    paddingBottom: 16,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.lightGray,
   },
   headerContent: {
-    paddingHorizontal: 24,
-  },
-  headerTop: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    gap: 12,
   },
   avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
-    borderWidth: 3,
-    borderColor: COLORS.white,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: COLORS.lightGray,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: COLORS.shadowDark,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  avatarText: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: COLORS.white,
-  },
-  greeting: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: COLORS.white,
-    marginBottom: 6,
-    ...(Platform.OS === 'web' && {
-      textShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    }),
-  },
-  subtitle: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.9)',
-    fontWeight: '500',
   },
   searchWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flex: 1,
     backgroundColor: COLORS.white,
-    borderRadius: 20,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    shadowColor: COLORS.shadowDark,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  searchIcon: {
-    marginRight: 12,
+    paddingVertical: 10,
   },
   searchInput: {
-    flex: 1,
-    fontSize: 16,
+    fontSize: 15,
     color: COLORS.textPrimary,
-    fontWeight: '500',
   },
   searchingIndicator: {
-    marginLeft: 8,
+    position: 'absolute',
+    right: 12,
+  },
+  searchButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   listContainer: {
     padding: 20,
@@ -364,37 +305,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 40,
+    paddingBottom: 120,
   },
-  emptyTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: COLORS.primary,
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  emptySubtitle: {
-    fontSize: 18,
-    color: COLORS.gray,
-    textAlign: 'center',
-    marginBottom: 40,
-  },
-  emptyButton: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: COLORS.primary,
-    justifyContent: 'center',
+  emptyTextContainer: {
     alignItems: 'center',
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 8,
   },
-  emptyButtonText: {
+  emptyTitleBlack: {
     fontSize: 48,
-    color: COLORS.white,
-    fontWeight: '300',
+    fontWeight: '700',
+    color: COLORS.black,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  emptyTitleBlue: {
+    fontSize: 56,
+    fontWeight: '800',
+    color: '#2196F3',
+    textAlign: 'center',
   },
   emptySearchContainer: {
     padding: 40,
