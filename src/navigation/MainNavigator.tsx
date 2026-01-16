@@ -1,8 +1,11 @@
 import React from 'react';
+import { View, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MainTabParamList, ListsStackParamList } from '../types';
 import CustomTabBar from '../components/navigation/CustomTabBar';
+import DrawerSidebar from '../components/navigation/DrawerSidebar';
+import { useResponsive } from '../utils/responsive';
 
 // Screens
 import ListsScreen from '../screens/lists/ListsScreen';
@@ -28,7 +31,7 @@ function ListsStackNavigator() {
   );
 }
 
-export default function MainNavigator() {
+function TabNavigator() {
   return (
     <Tab.Navigator
       tabBar={(props) => <CustomTabBar {...props} />}
@@ -48,3 +51,48 @@ export default function MainNavigator() {
     </Tab.Navigator>
   );
 }
+
+function DrawerNavigator() {
+  const [activeRoute, setActiveRoute] = React.useState('Home');
+
+  const renderScreen = () => {
+    switch (activeRoute) {
+      case 'Home':
+        return <ListsStackNavigator />;
+      case 'Progress':
+        return <ProgressScreen />;
+      case 'Profile':
+        return <ProfileScreen />;
+      default:
+        return <ListsStackNavigator />;
+    }
+  };
+
+  return (
+    <View style={styles.drawerContainer}>
+      <DrawerSidebar activeRoute={activeRoute} onNavigate={setActiveRoute} />
+      <View style={styles.contentContainer}>{renderScreen()}</View>
+    </View>
+  );
+}
+
+export default function MainNavigator() {
+  const { isDesktop, isTablet } = useResponsive();
+
+  // Use drawer navigation for tablet and desktop, tabs for mobile
+  if (isDesktop || isTablet) {
+    return <DrawerNavigator />;
+  }
+
+  return <TabNavigator />;
+}
+
+const styles = StyleSheet.create({
+  drawerContainer: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  contentContainer: {
+    flex: 1,
+  },
+});

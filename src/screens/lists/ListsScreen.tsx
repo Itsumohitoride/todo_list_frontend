@@ -13,6 +13,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { COLORS } from '../../utils/colors';
 import { useListsStore } from '../../store/listsStore';
 import { useAuthStore } from '../../store/authStore';
+import { useResponsive } from '../../utils/responsive';
 import ListCard from '../../components/lists/ListCard';
 import CreateListModal from '../../components/modals/CreateListModal';
 import EditListModal from '../../components/modals/EditListModal';
@@ -24,6 +25,7 @@ type Props = NativeStackScreenProps<ListsStackParamList, 'Lists'>;
 export default function ListsScreen({ navigation }: Props) {
   const { user } = useAuthStore();
   const { lists, isLoading, fetchLists, searchLists, selectList } = useListsStore();
+  const { isDesktop, isTablet } = useResponsive();
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [shareModalVisible, setShareModalVisible] = useState(false);
@@ -172,13 +174,21 @@ export default function ListsScreen({ navigation }: Props) {
         <FlatList
           data={lists}
           keyExtractor={(item) => item.id}
+          key={isDesktop ? 'desktop-3-col' : isTablet ? 'tablet-2-col' : 'mobile-1-col'}
+          numColumns={isDesktop ? 3 : isTablet ? 2 : 1}
           renderItem={({ item }) => (
-            <ListCard
-              list={item}
-              onPress={() => handleListPress(item)}
-              onEdit={() => handleEditList(item)}
-              onShare={() => handleShareList(item)}
-            />
+            <View style={[
+              styles.listCardWrapper,
+              isDesktop && styles.listCardWrapperDesktop,
+              isTablet && styles.listCardWrapperTablet,
+            ]}>
+              <ListCard
+                list={item}
+                onPress={() => handleListPress(item)}
+                onEdit={() => handleEditList(item)}
+                onShare={() => handleShareList(item)}
+              />
+            </View>
           )}
           contentContainerStyle={styles.listContainer}
           refreshControl={
@@ -305,6 +315,17 @@ const styles = StyleSheet.create({
   listContainer: {
     padding: 20,
     paddingBottom: 100,
+  },
+  listCardWrapper: {
+    flex: 1,
+  },
+  listCardWrapperTablet: {
+    paddingHorizontal: 8,
+    maxWidth: '50%',
+  },
+  listCardWrapperDesktop: {
+    paddingHorizontal: 10,
+    maxWidth: '33.333%',
   },
   emptyContainer: {
     flex: 1,

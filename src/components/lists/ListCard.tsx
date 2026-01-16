@@ -7,6 +7,7 @@ import {
   Alert,
   Modal,
   Pressable,
+  Platform,
 } from 'react-native';
 import { TodoList } from '../../types';
 import { COLORS } from '../../utils/colors';
@@ -21,6 +22,7 @@ interface ListCardProps {
 
 export default function ListCard({ list, onPress, onEdit, onShare }: ListCardProps) {
   const [menuVisible, setMenuVisible] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const { deleteList } = useListsStore();
 
   const handleDelete = () => {
@@ -57,9 +59,17 @@ export default function ListCard({ list, onPress, onEdit, onShare }: ListCardPro
 
   return (
     <TouchableOpacity
-      style={[styles.card, { backgroundColor: list.color }]}
+      style={[
+        styles.card,
+        { backgroundColor: list.color },
+        isHovered && styles.cardHovered,
+      ]}
       onPress={onPress}
-      activeOpacity={0.7}>
+      activeOpacity={0.7}
+      {...(Platform.OS === 'web' && {
+        onMouseEnter: () => setIsHovered(true),
+        onMouseLeave: () => setIsHovered(false),
+      })}>
       <View style={styles.content}>
         <Text style={styles.listName} numberOfLines={2}>
           {list.name}
@@ -125,6 +135,17 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 5,
     elevation: 5,
+    ...(Platform.OS === 'web' && {
+      cursor: 'pointer',
+      transition: 'transform 0.2s, box-shadow 0.2s',
+    }),
+  },
+  cardHovered: {
+    ...(Platform.OS === 'web' && {
+      transform: [{ scale: 1.03 }],
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+    }),
   },
   content: {
     flex: 1,
