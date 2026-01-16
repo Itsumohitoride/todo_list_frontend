@@ -16,6 +16,7 @@ import { COLORS } from '../../utils/colors';
 import ColorPicker from '../lists/ColorPicker';
 import { useListsStore } from '../../store/listsStore';
 import { TodoList } from '../../types';
+import ShareListModal from './ShareListModal';
 
 interface EditListModalProps {
   visible: boolean;
@@ -33,6 +34,7 @@ export default function EditListModal({
   const [listName, setListName] = useState('');
   const [selectedColor, setSelectedColor] = useState('#5293CC');
   const [loading, setLoading] = useState(false);
+  const [shareModalVisible, setShareModalVisible] = useState(false);
   const { updateList } = useListsStore();
 
   useEffect(() => {
@@ -128,6 +130,16 @@ export default function EditListModal({
                   </View>
                 )}
 
+                {list.listType === 'PERSONAL' && (
+                  <TouchableOpacity
+                    style={styles.shareButton}
+                    onPress={() => setShareModalVisible(true)}
+                    disabled={loading}>
+                    <Text style={styles.shareButtonIcon}>✈️</Text>
+                    <Text style={styles.shareButtonText}>Compartir Lista</Text>
+                  </TouchableOpacity>
+                )}
+
                 <TouchableOpacity
                   style={[styles.updateButton, loading && styles.buttonDisabled]}
                   onPress={handleUpdate}
@@ -145,6 +157,12 @@ export default function EditListModal({
           </ScrollView>
         </View>
       </KeyboardAvoidingView>
+
+      <ShareListModal
+        visible={shareModalVisible}
+        list={list}
+        onClose={() => setShareModalVisible(false)}
+      />
     </Modal>
   );
 }
@@ -229,6 +247,27 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: 14,
     textAlign: 'center',
+  },
+  shareButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderRadius: 15,
+    padding: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+    gap: 10,
+  },
+  shareButtonIcon: {
+    fontSize: 20,
+  },
+  shareButtonText: {
+    color: COLORS.white,
+    fontSize: 16,
+    fontWeight: '600',
   },
   updateButton: {
     backgroundColor: COLORS.white,

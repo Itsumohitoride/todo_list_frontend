@@ -16,6 +16,7 @@ import { useAuthStore } from '../../store/authStore';
 import ListCard from '../../components/lists/ListCard';
 import CreateListModal from '../../components/modals/CreateListModal';
 import EditListModal from '../../components/modals/EditListModal';
+import ShareListModal from '../../components/modals/ShareListModal';
 import { ListsStackParamList, TodoList } from '../../types';
 
 type Props = NativeStackScreenProps<ListsStackParamList, 'Lists'>;
@@ -25,7 +26,9 @@ export default function ListsScreen({ navigation }: Props) {
   const { lists, isLoading, fetchLists, searchLists, selectList } = useListsStore();
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
+  const [shareModalVisible, setShareModalVisible] = useState(false);
   const [selectedListForEdit, setSelectedListForEdit] = useState<TodoList | null>(null);
+  const [selectedListForShare, setSelectedListForShare] = useState<TodoList | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
 
@@ -71,6 +74,11 @@ export default function ListsScreen({ navigation }: Props) {
   const handleEditList = (list: TodoList) => {
     setSelectedListForEdit(list);
     setEditModalVisible(true);
+  };
+
+  const handleShareList = (list: TodoList) => {
+    setSelectedListForShare(list);
+    setShareModalVisible(true);
   };
 
   const renderEmptyState = () => (
@@ -143,6 +151,7 @@ export default function ListsScreen({ navigation }: Props) {
               list={item}
               onPress={() => handleListPress(item)}
               onEdit={() => handleEditList(item)}
+              onShare={() => handleShareList(item)}
             />
           )}
           contentContainerStyle={styles.listContainer}
@@ -184,6 +193,15 @@ export default function ListsScreen({ navigation }: Props) {
           setSelectedListForEdit(null);
         }}
         onSuccess={() => loadLists()}
+      />
+
+      <ShareListModal
+        visible={shareModalVisible}
+        list={selectedListForShare}
+        onClose={() => {
+          setShareModalVisible(false);
+          setSelectedListForShare(null);
+        }}
       />
     </View>
   );
