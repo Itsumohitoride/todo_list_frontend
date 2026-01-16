@@ -31,10 +31,20 @@ export default function ListsScreen({ navigation }: Props) {
   const [selectedListForShare, setSelectedListForShare] = useState<TodoList | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [searching, setSearching] = useState(false);
 
   useEffect(() => {
     loadLists();
   }, []);
+
+  // Debounce search
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      performSearch(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
 
   const loadLists = async () => {
     try {
@@ -50,8 +60,13 @@ export default function ListsScreen({ navigation }: Props) {
     setRefreshing(false);
   };
 
-  const handleSearch = async (query: string) => {
-    setSearchQuery(query);
+  const performSearch = async (query: string) => {
+    if (query.trim() === '' && lists.length > 0) {
+      // Don't search if query is empty and we already have lists
+      return;
+    }
+
+    setSearching(true);
     try {
       if (query.trim()) {
         await searchLists(query);
@@ -60,7 +75,13 @@ export default function ListsScreen({ navigation }: Props) {
       }
     } catch (error) {
       console.error('Error searching lists:', error);
+    } finally {
+      setSearching(false);
     }
+  };
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
   };
 
   const handleListPress = (list: TodoList) => {
@@ -113,8 +134,13 @@ export default function ListsScreen({ navigation }: Props) {
             placeholder="Buscar listas..."
             placeholderTextColor={COLORS.gray}
             value={searchQuery}
-            onChangeText={handleSearch}
+            onChangeText={handleSearchChange}
           />
+          {searching && (
+            <View style={styles.searchingIndicator}>
+              <ActivityIndicator size="small" color={COLORS.primary} />
+            </View>
+          )}
         </View>
       </View>
       <Text style={styles.greeting}>
@@ -259,6 +285,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 16,
     color: COLORS.black,
+  },
+  searchingIndicator: {
+    position: 'absolute',
+    right: 15,
+    top: '50%',
+    marginTop: -10,
   },
   greeting: {
     fontSize: 28,
