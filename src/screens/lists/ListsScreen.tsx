@@ -9,8 +9,10 @@ import {
   TextInput,
   RefreshControl,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { COLORS } from '../../utils/colors';
+import { COLORS, GRADIENTS } from '../../utils/colors';
 import { useListsStore } from '../../store/listsStore';
 import { useAuthStore } from '../../store/authStore';
 import { useResponsive } from '../../utils/responsive';
@@ -119,41 +121,60 @@ export default function ListsScreen({ navigation }: Props) {
   );
 
   const renderHeader = () => (
-    <View style={styles.header}>
-      <View style={styles.headerTop}>
-        <View style={styles.avatarContainer}>
-          {user && (
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>
-                {user.firstName.charAt(0).toUpperCase()}
-              </Text>
+    <LinearGradient
+      colors={GRADIENTS.primary}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.header}>
+
+      {/* Decorative elements */}
+      <View style={styles.headerDecoration1} />
+      <View style={styles.headerDecoration2} />
+
+      <View style={styles.headerContent}>
+        <View style={styles.headerTop}>
+          <View style={styles.avatarContainer}>
+            {user && (
+              <LinearGradient
+                colors={['rgba(255, 255, 255, 0.3)', 'rgba(255, 255, 255, 0.1)']}
+                style={styles.avatar}>
+                <Text style={styles.avatarText}>
+                  {user.firstName.charAt(0).toUpperCase()}
+                </Text>
+              </LinearGradient>
+            )}
+          </View>
+          <View style={styles.searchContainer}>
+            <View style={styles.searchInputContainer}>
+              <Ionicons name="search" size={20} color={COLORS.gray} style={styles.searchIcon} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Buscar listas..."
+                placeholderTextColor={COLORS.gray}
+                value={searchQuery}
+                onChangeText={handleSearchChange}
+              />
+              {searching && (
+                <View style={styles.searchingIndicator}>
+                  <ActivityIndicator size="small" color={COLORS.primary} />
+                </View>
+              )}
             </View>
-          )}
+          </View>
         </View>
-        <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Buscar listas..."
-            placeholderTextColor={COLORS.gray}
-            value={searchQuery}
-            onChangeText={handleSearchChange}
-          />
-          {searching && (
-            <View style={styles.searchingIndicator}>
-              <ActivityIndicator size="small" color={COLORS.primary} />
-            </View>
-          )}
+        <Text style={styles.greeting}>
+          👋 Hola, {user?.firstName || 'Usuario'}
+        </Text>
+        <View style={styles.subtitleContainer}>
+          <Ionicons name="albums" size={16} color={COLORS.white} />
+          <Text style={styles.subtitle}>
+            {lists.length === 0
+              ? 'No tienes listas aún'
+              : `${lists.length} ${lists.length === 1 ? 'lista' : 'listas'}`}
+          </Text>
         </View>
       </View>
-      <Text style={styles.greeting}>
-        Hola, {user?.firstName || 'Usuario'}
-      </Text>
-      <Text style={styles.subtitle}>
-        {lists.length === 0
-          ? 'No tienes listas aún'
-          : `Tienes ${lists.length} ${lists.length === 1 ? 'lista' : 'listas'}`}
-      </Text>
-    </View>
+    </LinearGradient>
   );
 
   if (isLoading && lists.length === 0) {
@@ -250,69 +271,111 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   header: {
-    backgroundColor: COLORS.white,
     paddingTop: 60,
-    paddingBottom: 24,
+    paddingBottom: 32,
     paddingHorizontal: 24,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 1,
-    shadowRadius: 12,
-    elevation: 5,
+    borderBottomLeftRadius: 35,
+    borderBottomRightRadius: 35,
+    shadowColor: COLORS.shadowDark,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 10,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  headerDecoration1: {
+    position: 'absolute',
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    top: -80,
+    right: -50,
+  },
+  headerDecoration2: {
+    position: 'absolute',
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    bottom: -40,
+    left: -30,
+  },
+  headerContent: {
+    zIndex: 1,
   },
   headerTop: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
-    gap: 15,
+    marginBottom: 24,
+    gap: 16,
   },
   avatarContainer: {
-    width: 50,
-    height: 50,
+    width: 56,
+    height: 56,
   },
   avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: COLORS.primary,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   avatarText: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 24,
+    fontWeight: '800',
     color: COLORS.white,
   },
   searchContainer: {
     flex: 1,
   },
+  searchInputContainer: {
+    backgroundColor: COLORS.white,
+    borderRadius: 28,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    shadowColor: COLORS.shadowDark,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
   searchInput: {
-    backgroundColor: COLORS.background,
-    borderRadius: 25,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    flex: 1,
+    paddingVertical: 14,
     fontSize: 16,
-    color: COLORS.black,
+    color: COLORS.textPrimary,
   },
   searchingIndicator: {
-    position: 'absolute',
-    right: 15,
-    top: '50%',
-    marginTop: -10,
+    marginLeft: 8,
   },
   greeting: {
-    fontSize: 32,
+    fontSize: 34,
     fontWeight: '800',
-    color: COLORS.textPrimary,
-    marginBottom: 8,
+    color: COLORS.white,
+    marginBottom: 10,
     letterSpacing: -0.5,
+    textShadowColor: 'rgba(0, 0, 0, 0.15)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  subtitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   subtitle: {
     fontSize: 16,
-    fontWeight: '500',
-    color: COLORS.textSecondary,
+    fontWeight: '600',
+    color: COLORS.white,
+    opacity: 0.95,
   },
   listContainer: {
     padding: 24,

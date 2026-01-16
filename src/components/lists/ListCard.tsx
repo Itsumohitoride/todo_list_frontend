@@ -9,6 +9,8 @@ import {
   Pressable,
   Platform,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { TodoList } from '../../types';
 import { COLORS } from '../../utils/colors';
 import { useListsStore } from '../../store/listsStore';
@@ -57,36 +59,59 @@ export default function ListCard({ list, onPress, onEdit, onShare }: ListCardPro
     if (onShare) onShare();
   };
 
+  // Helper function to get lighter color variant for gradient
+  const getLighterColor = (color: string) => {
+    // Simple lightening by adding to hex values
+    const hex = color.replace('#', '');
+    const r = Math.min(255, parseInt(hex.substring(0, 2), 16) + 30);
+    const g = Math.min(255, parseInt(hex.substring(2, 4), 16) + 30);
+    const b = Math.min(255, parseInt(hex.substring(4, 6), 16) + 30);
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+  };
+
   return (
     <TouchableOpacity
-      style={[
-        styles.card,
-        { backgroundColor: list.color },
-        isHovered && styles.cardHovered,
-      ]}
+      style={[styles.card, isHovered && styles.cardHovered]}
       onPress={onPress}
-      activeOpacity={0.7}
+      activeOpacity={0.8}
       {...(Platform.OS === 'web' && {
         onMouseEnter: () => setIsHovered(true),
         onMouseLeave: () => setIsHovered(false),
       })}>
-      <View style={styles.content}>
-        <Text style={styles.listName} numberOfLines={2}>
-          {list.name}
-        </Text>
-        <Text style={styles.listType}>
-          {list.listType === 'SHARED' ? 'Compartida' : 'Personal'}
-        </Text>
-      </View>
+      <LinearGradient
+        colors={[list.color, getLighterColor(list.color)]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.gradient}>
 
-      <TouchableOpacity
-        style={styles.menuButton}
-        onPress={() => setMenuVisible(true)}
-        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-        <View style={styles.menuDot} />
-        <View style={styles.menuDot} />
-        <View style={styles.menuDot} />
-      </TouchableOpacity>
+        {/* Decorative circles */}
+        <View style={styles.decorativeCircle1} />
+        <View style={styles.decorativeCircle2} />
+
+        <View style={styles.content}>
+          <View style={styles.iconBadge}>
+            <Ionicons
+              name={list.listType === 'SHARED' ? 'people' : 'person'}
+              size={20}
+              color={COLORS.white}
+            />
+          </View>
+
+          <Text style={styles.listName} numberOfLines={2}>
+            {list.name}
+          </Text>
+          <Text style={styles.listType}>
+            {list.listType === 'SHARED' ? 'Compartida' : 'Personal'}
+          </Text>
+        </View>
+
+        <TouchableOpacity
+          style={styles.menuButton}
+          onPress={() => setMenuVisible(true)}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+          <Ionicons name="ellipsis-horizontal" size={24} color={COLORS.white} />
+        </TouchableOpacity>
+      </LinearGradient>
 
       <Modal
         visible={menuVisible}
@@ -125,58 +150,97 @@ export default function ListCard({ list, onPress, onEdit, onShare }: ListCardPro
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 24,
-    padding: 24,
+    borderRadius: 28,
     marginBottom: 16,
-    minHeight: 140,
-    justifyContent: 'space-between',
+    minHeight: 160,
+    overflow: 'hidden',
     shadowColor: COLORS.shadowDark,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 1,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 8,
     ...(Platform.OS === 'web' && {
       cursor: 'pointer',
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
     }),
   },
   cardHovered: {
     ...(Platform.OS === 'web' && {
-      transform: [{ translateY: -4 }, { scale: 1.02 }],
-      boxShadow: '0 12px 24px rgba(0, 0, 0, 0.15)',
+      transform: [{ translateY: -6 }, { scale: 1.02 }],
+      boxShadow: '0 16px 40px rgba(0, 0, 0, 0.2)',
     }),
+  },
+  gradient: {
+    padding: 24,
+    minHeight: 160,
+    justifyContent: 'space-between',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  decorativeCircle1: {
+    position: 'absolute',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    top: -30,
+    right: -30,
+  },
+  decorativeCircle2: {
+    position: 'absolute',
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    bottom: -20,
+    left: -20,
   },
   content: {
     flex: 1,
+    zIndex: 1,
+  },
+  iconBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+    ...(Platform.OS === 'web' && {
+      backdropFilter: 'blur(10px)',
+    }),
   },
   listName: {
-    fontSize: 24,
-    fontWeight: '700',
+    fontSize: 26,
+    fontWeight: '800',
     color: COLORS.white,
-    marginBottom: 10,
+    marginBottom: 8,
     letterSpacing: 0.3,
+    textShadowColor: 'rgba(0, 0, 0, 0.15)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   listType: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '700',
     color: COLORS.white,
-    opacity: 0.85,
+    opacity: 0.9,
     textTransform: 'uppercase',
-    letterSpacing: 0.8,
+    letterSpacing: 1.2,
   },
   menuButton: {
     position: 'absolute',
-    top: 15,
-    right: 15,
-    padding: 5,
-  },
-  menuDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: COLORS.white,
-    marginBottom: 3,
+    top: 20,
+    right: 20,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 2,
   },
   modalOverlay: {
     flex: 1,

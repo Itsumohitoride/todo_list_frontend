@@ -46,3 +46,15 @@ export const LIST_COLORS = [
   '#FF375F',  // Rosa
   '#30D158',  // Verde lima
 ];
+
+// Gradientes modernos
+export const GRADIENTS = {
+  primary: ['#399EF7', '#2D7FCC'],
+  success: ['#65CF71', '#4CAF50'],
+  danger: ['#F7393C', '#E53935'],
+  warning: ['#FF9500', '#FB8C00'],
+  purple: ['#BF5AF2', '#9C27B0'],
+  ocean: ['#399EF7', '#5BB2A3'],
+  sunset: ['#FF9500', '#F7393C'],
+  forest: ['#65CF71', '#30D158'],
+};
