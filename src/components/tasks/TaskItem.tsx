@@ -9,6 +9,7 @@ import {
 import { Task } from '../../types';
 import { COLORS } from '../../utils/colors';
 import { useTasksStore } from '../../store/tasksStore';
+import CategoryBadge from './CategoryBadge';
 
 interface TaskItemProps {
   task: Task;
@@ -57,28 +58,6 @@ export default function TaskItem({ task, listColor, onEdit }: TaskItemProps) {
     });
   };
 
-  const getTaskTypeColor = (taskType: string) => {
-    switch (taskType) {
-      case 'IMPORTANT':
-        return COLORS.danger;
-      case 'URGENT':
-        return '#FF9500';
-      default:
-        return COLORS.gray;
-    }
-  };
-
-  const getTaskTypeLabel = (taskType: string) => {
-    switch (taskType) {
-      case 'IMPORTANT':
-        return 'Importante';
-      case 'URGENT':
-        return 'Urgente';
-      default:
-        return null;
-    }
-  };
-
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -108,17 +87,7 @@ export default function TaskItem({ task, listColor, onEdit }: TaskItemProps) {
         </Text>
 
         <View style={styles.metadata}>
-          {task.taskType !== 'NORMAL' && (
-            <View
-              style={[
-                styles.badge,
-                { backgroundColor: getTaskTypeColor(task.taskType) },
-              ]}>
-              <Text style={styles.badgeText}>
-                {getTaskTypeLabel(task.taskType)}
-              </Text>
-            </View>
-          )}
+          <CategoryBadge taskType={task.taskType} size="small" />
           {task.date && (
             <Text style={styles.date}>{formatDate(task.date)}</Text>
           )}
@@ -192,16 +161,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-  },
-  badge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  badgeText: {
-    color: COLORS.white,
-    fontSize: 11,
-    fontWeight: '600',
   },
   date: {
     fontSize: 13,

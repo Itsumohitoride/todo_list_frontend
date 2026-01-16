@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import { useTasksStore } from '../../store/tasksStore';
 import { useListsStore } from '../../store/listsStore';
 import TaskItem from '../../components/tasks/TaskItem';
 import CreateTaskModal from '../../components/modals/CreateTaskModal';
+import TaskFilterBar, { TaskFilter } from '../../components/tasks/TaskFilterBar';
 import { ListsStackParamList } from '../../types';
 
 type Props = NativeStackScreenProps<ListsStackParamList, 'ListDetail'>;
@@ -24,9 +25,36 @@ export default function ListDetailScreen({ route, navigation }: Props) {
   const { lists } = useListsStore();
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState<TaskFilter>('ALL');
 
   const list = lists.find((l) => l.id === listId);
   const listColor = list?.color || COLORS.primary;
+
+  // Filter tasks based on selected filter
+  const filteredTasks = useMemo(() => {
+    let filtered = [...tasks];
+
+    switch (selectedFilter) {
+      case 'PENDING':
+        filtered = filtered.filter((task) => task.status === 'PENDING');
+        break;
+      case 'COMPLETED':
+        filtered = filtered.filter((task) => task.status === 'COMPLETED');
+        break;
+      case 'IMPORTANT':
+        filtered = filtered.filter((task) => task.taskType === 'IMPORTANT');
+        break;
+      case 'URGENT':
+        filtered = filtered.filter((task) => task.taskType === 'URGENT');
+        break;
+      case 'ALL':
+      default:
+        // No filtering needed
+        break;
+    }
+
+    return filtered;
+  }, [tasks, selectedFilter]);
 
   useEffect(() => {
     loadTasks();
@@ -56,23 +84,40 @@ export default function ListDetailScreen({ route, navigation }: Props) {
     return (completed / tasks.length) * 100;
   };
 
-  const pendingTasks = tasks.filter((task) => task.status === 'PENDING');
-  const completedTasks = tasks.filter((task) => task.status === 'COMPLETED');
+  // Separate filtered tasks into pending and completed for display
+  const pendingTasks = filteredTasks.filter((task) => task.status === 'PENDING');
+  const completedTasks = filteredTasks.filter((task) => task.status === 'COMPLETED');
   const progress = calculateProgress();
 
-  const renderEmptyState = () => (
-    <View style={styles.emptyContainer}>
-      <Text style={styles.emptyTitle}>Sin tareas</Text>
-      <Text style={styles.emptySubtitle}>
-        Agrega tu primera tarea a esta lista
-      </Text>
-      <TouchableOpacity
-        style={[styles.emptyButton, { backgroundColor: listColor }]}
-        onPress={() => setCreateModalVisible(true)}>
-        <Text style={styles.emptyButtonText}>+</Text>
-      </TouchableOpacity>
-    </View>
-  );
+  const renderEmptyState = () => {
+    const hasNoTasks = tasks.length === 0;
+    const hasNoFilteredTasks = filteredTasks.length === 0 && tasks.length > 0;
+
+    return (
+      <View style={styles.emptyContainer}>
+        {hasNoTasks ? (
+          <>
+            <Text style={styles.emptyTitle}>Sin tareas</Text>
+            <Text style={styles.emptySubtitle}>
+              Agrega tu primera tarea a esta lista
+            </Text>
+            <TouchableOpacity
+              style={[styles.emptyButton, { backgroundColor: listColor }]}
+              onPress={() => setCreateModalVisible(true)}>
+              <Text style={styles.emptyButtonText}>+</Text>
+            </TouchableOpacity>
+          </>
+        ) : hasNoFilteredTasks ? (
+          <>
+            <Text style={styles.emptyTitle}>Sin resultados</Text>
+            <Text style={styles.emptySubtitle}>
+              No hay tareas que coincidan con este filtro
+            </Text>
+          </>
+        ) : null}
+      </View>
+    );
+  };
 
   const renderHeader = () => (
     <View style={styles.headerContent}>
@@ -95,9 +140,17 @@ export default function ListDetailScreen({ route, navigation }: Props) {
         </View>
       </View>
 
+      <TaskFilterBar
+        selectedFilter={selectedFilter}
+        onFilterChange={setSelectedFilter}
+        accentColor={listColor}
+      />
+
       {pendingTasks.length > 0 && (
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Pendientes</Text>
+          <Text style={styles.sectionTitle}>
+            {selectedFilter === 'ALL' ? 'Pendientes' : `${filteredTasks.length} tarea${filteredTasks.length === 1 ? '' : 's'}`}
+          </Text>
         </View>
       )}
     </View>
@@ -146,7 +199,7 @@ export default function ListDetailScreen({ route, navigation }: Props) {
         <View style={styles.headerSpacer} />
       </View>
 
-      {tasks.length === 0 ? (
+      {tasks.length === 0 || filteredTasks.length === 0 ? (
         renderEmptyState()
       ) : (
         <FlatList
