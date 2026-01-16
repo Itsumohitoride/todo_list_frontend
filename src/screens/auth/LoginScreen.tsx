@@ -11,8 +11,7 @@ import {
   Platform,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useAuth } from '../../contexts/AuthContext';
-import { authService } from '../../services/authService';
+import { useAuthStore } from '../../store/authStore';
 import { COLORS } from '../../utils/colors';
 import { RootStackParamList } from '../../types';
 
@@ -21,9 +20,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 export default function LoginScreen({ navigation }: Props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
-  const { signIn } = useAuth();
+  const { login, isLoading, error, clearError } = useAuthStore();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -31,23 +28,10 @@ export default function LoginScreen({ navigation }: Props) {
       return;
     }
 
-    setLoading(true);
-    setError(false);
     try {
-      const response = await authService.login({ email, password });
-      await signIn(response.token, {
-        userId: response.userId,
-        email: response.email,
-        firstName: response.firstName,
-        lastName: response.lastName,
-        nickname: response.nickname,
-        role: response.role,
-      });
+      await login(email, password);
     } catch (errorMsg) {
-      setError(true);
       console.error(errorMsg);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -69,7 +53,7 @@ export default function LoginScreen({ navigation }: Props) {
             value={email}
             onChangeText={(text) => {
               setEmail(text);
-              setError(false);
+              if (error) clearError();
             }}
             keyboardType="email-address"
             autoCapitalize="none"
@@ -83,17 +67,17 @@ export default function LoginScreen({ navigation }: Props) {
             value={password}
             onChangeText={(text) => {
               setPassword(text);
-              setError(false);
+              if (error) clearError();
             }}
             secureTextEntry
             autoComplete="password"
           />
 
           <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
+            style={[styles.button, isLoading && styles.buttonDisabled]}
             onPress={handleLogin}
-            disabled={loading}>
-            {loading ? (
+            disabled={isLoading}>
+            {isLoading ? (
               <ActivityIndicator color={COLORS.primary} />
             ) : (
               <Text style={styles.buttonText}>Continuar</Text>
@@ -102,7 +86,7 @@ export default function LoginScreen({ navigation }: Props) {
 
           {error && (
             <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>Correo o contraseña incorrectas</Text>
+              <Text style={styles.errorText}>{error}</Text>
             </View>
           )}
 

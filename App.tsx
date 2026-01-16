@@ -1,18 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { AuthProvider, useAuth } from './src/contexts/AuthContext.tsx';
+import { useAuthStore } from './src/store/authStore';
 import { RootStackParamList } from './src/types/index';
-import LoginScreen from './src/screens/auth/LoginScreen.tsx';
-import RegisterScreen from './src/screens/auth/RegisterScreen.tsx';
-import MainNavigator from './src/navigation/MainNavigator.tsx';
+import LoginScreen from './src/screens/auth/LoginScreen';
+import RegisterScreen from './src/screens/auth/RegisterScreen';
+import MainNavigator from './src/navigation/MainNavigator';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { COLORS } from './src/utils/colors';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function Navigation() {
-  const { session, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, loadToken } = useAuthStore();
+
+  useEffect(() => {
+    loadToken();
+  }, []);
 
   if (isLoading) {
     return (
@@ -28,7 +32,7 @@ function Navigation() {
         screenOptions={{
           headerShown: false,
         }}>
-        {session ? (
+        {isAuthenticated ? (
           <Stack.Screen name="Main" component={MainNavigator} />
         ) : (
           <>
@@ -42,11 +46,7 @@ function Navigation() {
 }
 
 export default function App() {
-  return (
-    <AuthProvider>
-      <Navigation />
-    </AuthProvider>
-  );
+  return <Navigation />;
 }
 
 const styles = StyleSheet.create({

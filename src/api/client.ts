@@ -4,14 +4,16 @@ import { Platform } from 'react-native';
 
 const API_BASE_URL = 'http://localhost:8080/api';
 
-const api = axios.create({
+const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 10000, // 10 seconds timeout
 });
 
-api.interceptors.request.use(
+// Request interceptor - Add JWT token to requests
+apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig> => {
     let token: string | null;
 
@@ -32,11 +34,12 @@ api.interceptors.request.use(
   }
 );
 
-api.interceptors.response.use(
+// Response interceptor - Handle global errors
+apiClient.interceptors.response.use(
   (response: AxiosResponse): AxiosResponse => response,
   async (error: AxiosError): Promise<never> => {
     if (error.response?.status === 401) {
-      console.log('Unauthorized, clearing session...');
+      console.log('Unauthorized - clearing session...');
 
       // Clear stored tokens on 401
       if (Platform.OS === 'web') {
@@ -48,10 +51,12 @@ api.interceptors.response.use(
       }
     }
 
-    // Enhanced error handling
+    // Enhanced error handling with structured error messages
     const errorMessage = error.response?.data || error.message || 'An unexpected error occurred';
+    console.error('API Error:', errorMessage);
+
     return Promise.reject(errorMessage);
   }
 );
 
-export default api;
+export default apiClient;

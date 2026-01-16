@@ -5,8 +5,9 @@ import { MainTabParamList, ListsStackParamList } from '../types';
 import { COLORS } from '../utils/colors';
 import { View, StyleSheet } from 'react-native';
 
-// Placeholder screens - will implement next
+// Screens
 import ListsScreen from '../screens/lists/ListsScreen';
+import ListDetailScreen from '../screens/lists/ListDetailScreen';
 import ProgressScreen from '../screens/progress/ProgressScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 
@@ -20,6 +21,7 @@ function ListsStackNavigator() {
         headerShown: false,
       }}>
       <Stack.Screen name="Lists" component={ListsScreen} />
+      <Stack.Screen name="ListDetail" component={ListDetailScreen} />
     </Stack.Navigator>
   );
 }

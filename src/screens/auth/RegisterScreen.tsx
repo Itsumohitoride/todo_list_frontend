@@ -12,8 +12,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useAuth } from '../../contexts/AuthContext';
-import { authService } from '../../services/authService';
+import { useAuthStore } from '../../store/authStore';
 import { COLORS } from '../../utils/colors';
 import { RootStackParamList } from '../../types';
 
@@ -26,8 +25,7 @@ export default function RegisterScreen({ navigation }: Props) {
   const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { signUp } = useAuth();
+  const { register, isLoading, error, clearError } = useAuthStore();
 
   const handleRegister = async () => {
     if (!firstName || !lastName || !email || !nickname || !password || !confirmPassword) {
@@ -45,28 +43,16 @@ export default function RegisterScreen({ navigation }: Props) {
       return;
     }
 
-    setLoading(true);
     try {
-      const response = await authService.register({
+      await register({
         firstName,
         lastName,
         email,
         nickname,
         password,
       });
-
-      await signUp(response.token, {
-        userId: response.userId,
-        email: response.email,
-        firstName: response.firstName,
-        lastName: response.lastName,
-        nickname: response.nickname,
-        role: response.role,
-      });
     } catch (error) {
-      Alert.alert('Error', error as string);
-    } finally {
-      setLoading(false);
+      console.error(error);
     }
   };
 
@@ -140,15 +126,21 @@ export default function RegisterScreen({ navigation }: Props) {
             />
 
             <TouchableOpacity
-              style={[styles.button, loading && styles.buttonDisabled]}
+              style={[styles.button, isLoading && styles.buttonDisabled]}
               onPress={handleRegister}
-              disabled={loading}>
-              {loading ? (
+              disabled={isLoading}>
+              {isLoading ? (
                 <ActivityIndicator color={COLORS.primary} />
               ) : (
                 <Text style={styles.buttonText}>Registrarse</Text>
               )}
             </TouchableOpacity>
+
+            {error && (
+              <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            )}
 
             <TouchableOpacity
               style={styles.linkButton}
@@ -217,6 +209,18 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  errorContainer: {
+    backgroundColor: COLORS.danger,
+    padding: 15,
+    borderRadius: 25,
+    marginTop: 15,
+    alignItems: 'center',
+  },
+  errorText: {
+    color: COLORS.white,
+    fontSize: 16,
+    fontWeight: '600',
   },
   linkButton: {
     marginTop: 20,
