@@ -1,7 +1,24 @@
 import { create } from 'zustand';
+import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TodoList } from '../types';
 import { listsApi } from '../api/lists.api';
 import { useAuthStore } from './authStore';
+import { checkConnectivity } from '../utils/connectivity';
+import { offlineQueue } from '../utils/offlineQueue';
+
+const LISTS_CACHE_KEY = 'lists_cache';
+
+const getStorage = () => {
+  if (Platform.OS === 'web') {
+    return {
+      getItem: async (key: string) => localStorage.getItem(key),
+      setItem: async (key: string, value: string) => localStorage.setItem(key, value),
+      removeItem: async (key: string) => localStorage.removeItem(key),
+    };
+  }
+  return AsyncStorage;
+};
 
 interface ListsState {
   lists: TodoList[];
@@ -18,6 +35,8 @@ interface ListsState {
   searchLists: (query: string) => Promise<void>;
   clearError: () => void;
   refreshLists: () => Promise<void>;
+  loadCachedLists: () => Promise<void>;
+  syncOfflineOperations: () => Promise<void>;
 }
 
 export const useListsStore = create<ListsState>((set, get) => ({
@@ -35,11 +54,27 @@ export const useListsStore = create<ListsState>((set, get) => ({
         throw new Error('Usuario no autenticado');
       }
 
+      const isOnline = await checkConnectivity();
+
+      if (!isOnline) {
+        // Load from cache if offline
+        await get().loadCachedLists();
+        set({ isLoading: false });
+        return;
+      }
+
       const lists = await listsApi.getLists(user.userId);
+
+      // Save to cache
+      const storage = getStorage();
+      await storage.setItem(LISTS_CACHE_KEY, JSON.stringify(lists));
+
       set({ lists, isLoading: false, error: null });
     } catch (error) {
       const errorMessage = typeof error === 'string' ? error : 'Error al cargar listas';
-      set({ lists: [], isLoading: false, error: errorMessage });
+      // Try to load from cache on error
+      await get().loadCachedLists();
+      set({ isLoading: false, error: errorMessage });
       throw error;
     }
   },
@@ -51,6 +86,35 @@ export const useListsStore = create<ListsState>((set, get) => ({
       const user = useAuthStore.getState().user;
       if (!user) {
         throw new Error('Usuario no autenticado');
+      }
+
+      const isOnline = await checkConnectivity();
+
+      if (!isOnline) {
+        // Queue operation for later
+        await offlineQueue.add({
+          type: 'CREATE_LIST',
+          endpoint: '/lists',
+          method: 'POST',
+          data: { name, color, listType: 'PERSONAL', userId: user.userId },
+        });
+
+        // Create temporary list locally
+        const tempList: TodoList = {
+          id: `temp_${Date.now()}`,
+          name,
+          color,
+          listType: 'PERSONAL',
+          userId: user.userId,
+        };
+
+        const currentLists = get().lists;
+        set({
+          lists: [...currentLists, tempList],
+          isLoading: false,
+          error: null
+        });
+        return;
       }
 
       const newList = await listsApi.createList({
@@ -151,6 +215,54 @@ export const useListsStore = create<ListsState>((set, get) => ({
   },
 
   refreshLists: async () => {
+    await get().fetchLists();
+  },
+
+  loadCachedLists: async () => {
+    try {
+      const storage = getStorage();
+      const cachedData = await storage.getItem(LISTS_CACHE_KEY);
+
+      if (cachedData) {
+        const lists = JSON.parse(cachedData);
+        set({ lists });
+      }
+    } catch (error) {
+      console.error('Error loading cached lists:', error);
+    }
+  },
+
+  syncOfflineOperations: async () => {
+    const isOnline = await checkConnectivity();
+
+    if (!isOnline) {
+      return;
+    }
+
+    const operations = await offlineQueue.getAll();
+
+    for (const operation of operations) {
+      try {
+        switch (operation.type) {
+          case 'CREATE_LIST':
+            await listsApi.createList(operation.data);
+            break;
+          case 'UPDATE_LIST':
+            await listsApi.updateList(operation.data.id, operation.data);
+            break;
+          case 'DELETE_LIST':
+            await listsApi.deleteList(operation.data.id);
+            break;
+        }
+
+        await offlineQueue.remove(operation.id);
+      } catch (error) {
+        console.error('Error syncing operation:', operation, error);
+        // Keep operation in queue for next sync attempt
+      }
+    }
+
+    // Refresh lists after sync
     await get().fetchLists();
   },
 }));

@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuthStore } from './src/store/authStore';
+import { useOfflineSync } from './src/hooks/useOfflineSync';
 import { RootStackParamList } from './src/types/index';
 import LoginScreen from './src/screens/auth/LoginScreen';
 import RegisterScreen from './src/screens/auth/RegisterScreen';
@@ -13,6 +14,9 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function Navigation() {
   const { isAuthenticated, isLoading, loadToken } = useAuthStore();
+
+  // Setup offline sync
+  useOfflineSync();
 
   useEffect(() => {
     loadToken();

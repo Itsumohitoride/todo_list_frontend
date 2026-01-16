@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MainTabParamList, ListsStackParamList } from '../types';
 import CustomTabBar from '../components/navigation/CustomTabBar';
 import DrawerSidebar from '../components/navigation/DrawerSidebar';
+import ConnectivityBanner from '../components/common/ConnectivityBanner';
 import { useResponsive } from '../utils/responsive';
 
 // Screens
@@ -33,22 +34,25 @@ function ListsStackNavigator() {
 
 function TabNavigator() {
   return (
-    <Tab.Navigator
-      tabBar={(props) => <CustomTabBar {...props} />}
-      screenOptions={{
-        headerShown: false,
-      }}>
-      <Tab.Screen name="Home" component={ListsStackNavigator} />
-      <Tab.Screen
-        name="CreatePlaceholder"
-        component={CreatePlaceholder}
-        options={{
-          tabBarButton: () => null,
-        }}
-      />
-      <Tab.Screen name="Progress" component={ProgressScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
-    </Tab.Navigator>
+    <>
+      <ConnectivityBanner />
+      <Tab.Navigator
+        tabBar={(props) => <CustomTabBar {...props} />}
+        screenOptions={{
+          headerShown: false,
+        }}>
+        <Tab.Screen name="Home" component={ListsStackNavigator} />
+        <Tab.Screen
+          name="CreatePlaceholder"
+          component={CreatePlaceholder}
+          options={{
+            tabBarButton: () => null,
+          }}
+        />
+        <Tab.Screen name="Progress" component={ProgressScreen} />
+        <Tab.Screen name="Profile" component={ProfileScreen} />
+      </Tab.Navigator>
+    </>
   );
 }
 
@@ -71,7 +75,10 @@ function DrawerNavigator() {
   return (
     <View style={styles.drawerContainer}>
       <DrawerSidebar activeRoute={activeRoute} onNavigate={setActiveRoute} />
-      <View style={styles.contentContainer}>{renderScreen()}</View>
+      <View style={styles.contentContainer}>
+        <ConnectivityBanner />
+        {renderScreen()}
+      </View>
     </View>
   );
 }
