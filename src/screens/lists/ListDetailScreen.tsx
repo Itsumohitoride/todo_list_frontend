@@ -42,10 +42,10 @@ export default function ListDetailScreen({ route, navigation }: Props) {
         filtered = filtered.filter((task) => task.status === 'COMPLETED');
         break;
       case 'IMPORTANT':
-        filtered = filtered.filter((task) => task.taskType === 'IMPORTANT');
+        filtered = filtered.filter((task) => task.type === 'IMPORTANT');
         break;
-      case 'URGENT':
-        filtered = filtered.filter((task) => task.taskType === 'URGENT');
+      case 'TODAY':
+        filtered = filtered.filter((task) => task.type === 'TODAY');
         break;
       case 'ALL':
       default:
@@ -97,21 +97,16 @@ export default function ListDetailScreen({ route, navigation }: Props) {
       <View style={styles.emptyContainer}>
         {hasNoTasks ? (
           <>
-            <Text style={styles.emptyTitle}>Sin tareas</Text>
+            <Text style={styles.emptyTitle}>No tasks</Text>
             <Text style={styles.emptySubtitle}>
-              Agrega tu primera tarea a esta lista
+              Add your first task to this list
             </Text>
-            <TouchableOpacity
-              style={[styles.emptyButton, { backgroundColor: listColor }]}
-              onPress={() => setCreateModalVisible(true)}>
-              <Text style={styles.emptyButtonText}>+</Text>
-            </TouchableOpacity>
           </>
         ) : hasNoFilteredTasks ? (
           <>
-            <Text style={styles.emptyTitle}>Sin resultados</Text>
+            <Text style={styles.emptyTitle}>No results</Text>
             <Text style={styles.emptySubtitle}>
-              No hay tareas que coincidan con este filtro
+              No tasks match this filter
             </Text>
           </>
         ) : null}
@@ -124,9 +119,9 @@ export default function ListDetailScreen({ route, navigation }: Props) {
       <View style={styles.progressContainer}>
         <View style={styles.progressInfo}>
           <Text style={styles.progressText}>
-            {tasks.filter((t) => t.status === 'COMPLETED').length} de {tasks.length}
+            {tasks.filter((t) => t.status === 'COMPLETED').length} of {tasks.length}
           </Text>
-          <Text style={styles.progressLabel}>completadas</Text>
+          <Text style={styles.progressLabel}>completed</Text>
         </View>
         <View style={styles.progressBarContainer}>
           <View style={styles.progressBarBackground}>
@@ -149,7 +144,7 @@ export default function ListDetailScreen({ route, navigation }: Props) {
       {pendingTasks.length > 0 && (
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>
-            {selectedFilter === 'ALL' ? 'Pendientes' : `${filteredTasks.length} tarea${filteredTasks.length === 1 ? '' : 's'}`}
+            {selectedFilter === 'ALL' ? 'Pending' : `${filteredTasks.length} task${filteredTasks.length === 1 ? '' : 's'}`}
           </Text>
         </View>
       )}
@@ -161,25 +156,28 @@ export default function ListDetailScreen({ route, navigation }: Props) {
 
     return (
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Completadas</Text>
+        <Text style={styles.sectionTitle}>Completed</Text>
       </View>
     );
   };
 
   if (isLoading && tasks.length === 0) {
     return (
-      <View style={[styles.container, { backgroundColor: COLORS.background }]}>
-        <View style={[styles.header, { backgroundColor: listColor }]}>
+      <View style={styles.container}>
+        <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}>
             <Text style={styles.backButtonText}>←</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>{listName}</Text>
+          <View style={styles.headerTitleContainer}>
+            <View style={[styles.colorIndicator, { backgroundColor: listColor }]} />
+            <Text style={styles.headerTitle}>{listName}</Text>
+          </View>
           <View style={styles.headerSpacer} />
         </View>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={listColor} />
+          <ActivityIndicator size="large" color={COLORS.accent} />
         </View>
       </View>
     );
@@ -187,19 +185,22 @@ export default function ListDetailScreen({ route, navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.header, { backgroundColor: listColor }]}>
+      <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}>
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>
-          {listName}
-        </Text>
+        <View style={styles.headerTitleContainer}>
+          <View style={[styles.colorIndicator, { backgroundColor: listColor }]} />
+          <Text style={styles.headerTitle} numberOfLines={1}>
+            {listName}
+          </Text>
+        </View>
         <View style={styles.headerSpacer} />
       </View>
 
-      {tasks.length === 0 || filteredTasks.length === 0 ? (
+      {tasks.length === 0 ? (
         renderEmptyState()
       ) : (
         <FlatList
@@ -217,6 +218,16 @@ export default function ListDetailScreen({ route, navigation }: Props) {
             );
           }}
           ListHeaderComponent={renderHeader()}
+          ListEmptyComponent={
+            filteredTasks.length === 0 ? (
+              <View style={styles.emptyFilterContainer}>
+                <Text style={styles.emptyTitle}>No results</Text>
+                <Text style={styles.emptySubtitle}>
+                  No tasks match this filter
+                </Text>
+              </View>
+            ) : null
+          }
           contentContainerStyle={styles.listContainer}
           refreshControl={
             <RefreshControl
@@ -229,10 +240,12 @@ export default function ListDetailScreen({ route, navigation }: Props) {
       )}
 
       <TouchableOpacity
-        style={[styles.fab, { backgroundColor: listColor }]}
+        style={styles.fab}
         onPress={() => setCreateModalVisible(true)}
         activeOpacity={0.8}>
-        <Text style={styles.fabText}>+</Text>
+        <View style={styles.fabInner}>
+          <Text style={styles.fabText}>+</Text>
+        </View>
       </TouchableOpacity>
 
       <CreateTaskModal
@@ -249,39 +262,52 @@ export default function ListDetailScreen({ route, navigation }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.parchment,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingTop: 50,
-    paddingBottom: 15,
-    paddingHorizontal: 15,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
+    paddingBottom: 16,
+    paddingHorizontal: 20,
+    backgroundColor: COLORS.cardBackground,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
   },
   backButton: {
-    padding: 5,
-    marginRight: 10,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
   },
   backButtonText: {
-    fontSize: 32,
-    color: COLORS.white,
+    fontSize: 28,
+    color: COLORS.ink,
     fontWeight: '300',
+    lineHeight: 28,
+    textAlign: 'center',
+  },
+  headerTitleContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  colorIndicator: {
+    width: 4,
+    height: 24,
+    borderRadius: 2,
+    marginRight: 12,
   },
   headerTitle: {
     flex: 1,
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: COLORS.white,
+    fontSize: 20,
+    fontWeight: '600',
+    color: COLORS.ink,
+    letterSpacing: 0.3,
   },
   headerSpacer: {
-    width: 42,
+    width: 48,
   },
   loadingContainer: {
     flex: 1,
@@ -292,55 +318,57 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   progressContainer: {
-    backgroundColor: COLORS.white,
-    borderRadius: 15,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    backgroundColor: COLORS.cardBackground,
+    borderRadius: 6,
+    padding: 18,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   progressInfo: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   progressText: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: COLORS.black,
-    marginRight: 8,
+    fontSize: 24,
+    fontWeight: '600',
+    color: COLORS.ink,
+    marginRight: 6,
+    letterSpacing: 0.3,
   },
   progressLabel: {
-    fontSize: 16,
-    color: COLORS.gray,
+    fontSize: 14,
+    color: COLORS.inkMedium,
+    letterSpacing: 0.2,
   },
   progressBarContainer: {
-    marginTop: 10,
+    marginTop: 8,
   },
   progressBarBackground: {
-    height: 8,
-    backgroundColor: COLORS.background,
-    borderRadius: 4,
+    height: 6,
+    backgroundColor: COLORS.parchmentDark,
+    borderRadius: 3,
     overflow: 'hidden',
   },
   progressBarFill: {
     height: '100%',
-    borderRadius: 4,
+    borderRadius: 3,
   },
   listContainer: {
     padding: 20,
     paddingBottom: 100,
   },
   sectionHeader: {
-    marginBottom: 15,
+    marginBottom: 12,
+    marginTop: 8,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: COLORS.black,
+    fontSize: 13,
+    fontWeight: '500',
+    color: COLORS.inkMedium,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   emptyContainer: {
     flex: 1,
@@ -349,53 +377,54 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
   },
   emptyTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: COLORS.gray,
-    marginBottom: 10,
+    fontSize: 24,
+    fontWeight: '600',
+    color: COLORS.inkLight,
+    marginBottom: 8,
     textAlign: 'center',
+    letterSpacing: 0.3,
   },
   emptySubtitle: {
-    fontSize: 16,
-    color: COLORS.gray,
+    fontSize: 15,
+    color: COLORS.inkFaded,
     textAlign: 'center',
-    marginBottom: 40,
+    marginBottom: 32,
+    letterSpacing: 0.2,
   },
-  emptyButton: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    justifyContent: 'center',
+  emptyFilterContainer: {
+    paddingVertical: 60,
     alignItems: 'center',
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 8,
-  },
-  emptyButtonText: {
-    fontSize: 40,
-    color: COLORS.white,
-    fontWeight: '300',
   },
   fab: {
     position: 'absolute',
-    bottom: 30,
-    right: 30,
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    bottom: 24,
+    right: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 6,
+    backgroundColor: COLORS.accent,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 8,
+    borderWidth: 1,
+    borderColor: COLORS.accentLight,
+    shadowColor: COLORS.shadowDark,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 3,
+    elevation: 4,
+  },
+  fabInner: {
+    width: 56,
+    height: 56,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   fabText: {
-    fontSize: 40,
-    color: COLORS.white,
+    fontSize: 30,
+    color: COLORS.cardBackground,
     fontWeight: '300',
+    includeFontPadding: false,
+    textAlignVertical: 'center',
+    marginTop: -2,
   },
 });

@@ -24,24 +24,24 @@ export default function TaskItem({ task, listColor, onEdit }: TaskItemProps) {
     try {
       await toggleTaskStatus(task.id);
     } catch (error) {
-      Alert.alert('Error', 'No se pudo actualizar el estado de la tarea');
+      Alert.alert('Error', 'Could not update task status');
     }
   };
 
   const handleDelete = () => {
     Alert.alert(
-      'Eliminar Tarea',
-      `¿Estás seguro de que deseas eliminar esta tarea?`,
+      'Delete Task',
+      `Are you sure you want to delete this task?`,
       [
-        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Eliminar',
+          text: 'Delete',
           style: 'destructive',
           onPress: async () => {
             try {
               await deleteTask(task.id);
             } catch (error) {
-              Alert.alert('Error', 'No se pudo eliminar la tarea');
+              Alert.alert('Error', 'Could not delete task');
             }
           },
         },
@@ -87,7 +87,7 @@ export default function TaskItem({ task, listColor, onEdit }: TaskItemProps) {
         </Text>
 
         <View style={styles.metadata}>
-          <CategoryBadge taskType={task.taskType} size="small" />
+          <CategoryBadge type={task.type} size="small" />
           {task.date && (
             <Text style={styles.date}>{formatDate(task.date)}</Text>
           )}
@@ -118,64 +118,65 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
-    borderRadius: 15,
-    padding: 15,
-    marginBottom: 12,
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    backgroundColor: COLORS.cardBackground,
+    borderRadius: 4,
+    padding: 16,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderLeftWidth: 3,
   },
   checkbox: {
-    marginRight: 15,
+    marginRight: 16,
   },
   checkboxInner: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    borderWidth: 2.5,
+    width: 22,
+    height: 22,
+    borderRadius: 2,
+    borderWidth: 1.5,
     justifyContent: 'center',
     alignItems: 'center',
   },
   checkmark: {
-    color: COLORS.white,
-    fontSize: 16,
-    fontWeight: 'bold',
+    color: COLORS.cardBackground,
+    fontSize: 14,
+    fontWeight: '600',
   },
   content: {
     flex: 1,
-    marginRight: 10,
+    marginRight: 12,
   },
   description: {
-    fontSize: 16,
-    color: COLORS.black,
-    marginBottom: 6,
+    fontSize: 15,
+    color: COLORS.ink,
+    lineHeight: 22,
+    letterSpacing: 0.2,
   },
   descriptionCompleted: {
     textDecorationLine: 'line-through',
-    color: COLORS.gray,
+    color: COLORS.inkFaded,
   },
   metadata: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
+    marginTop: 6,
   },
   date: {
-    fontSize: 13,
-    color: COLORS.gray,
+    fontSize: 12,
+    color: COLORS.inkLight,
+    letterSpacing: 0.5,
   },
   actions: {
     flexDirection: 'row',
-    gap: 5,
+    gap: 8,
   },
   actionButton: {
-    padding: 5,
+    padding: 6,
   },
   actionIcon: {
-    fontSize: 18,
-    color: COLORS.gray,
+    fontSize: 16,
+    color: COLORS.inkLight,
   },
   deleteIcon: {
     color: COLORS.danger,

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Dimensions, Platform } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Dimensions } from 'react-native';
 import { LineChart, BarChart } from 'react-native-chart-kit';
 import { COLORS } from '../../utils/colors';
 import { useAuthStore } from '../../store/authStore';
@@ -16,6 +15,7 @@ export default function ProgressScreen() {
   const [statistics, setStatistics] = useState<Statistics | null>(null);
   const [progressChart, setProgressChart] = useState<ChartData | null>(null);
   const [tasksChart, setTasksChart] = useState<ChartData | null>(null);
+  const [chartWidth, setChartWidth] = useState(screenWidth - 40);
 
   useEffect(() => {
     loadStatistics();
@@ -43,19 +43,24 @@ export default function ProgressScreen() {
   };
 
   const chartConfig = {
-    backgroundColor: COLORS.white,
-    backgroundGradientFrom: COLORS.white,
-    backgroundGradientTo: COLORS.white,
+    backgroundColor: COLORS.cardBackground,
+    backgroundGradientFrom: COLORS.cardBackground,
+    backgroundGradientTo: COLORS.cardBackground,
     decimalPlaces: 0,
-    color: (opacity = 1) => `rgba(57, 158, 247, ${opacity})`,
-    labelColor: (opacity = 1) => `rgba(69, 73, 77, ${opacity})`,
+    color: (opacity = 1) => `rgba(139, 115, 85, ${opacity})`, // COLORS.accent
+    labelColor: (opacity = 1) => `rgba(74, 74, 74, ${opacity})`, // COLORS.inkMedium
     style: {
-      borderRadius: 16,
+      borderRadius: 6,
     },
     propsForDots: {
-      r: '6',
-      strokeWidth: '2',
-      stroke: COLORS.primary,
+      r: '4',
+      strokeWidth: '1.5',
+      stroke: COLORS.accent,
+    },
+    formatYLabel: (value: string) => {
+      const num = parseFloat(value);
+      // Only show integer values to avoid duplicates like "0 0 1 1 2 2"
+      return Number.isInteger(num) ? num.toString() : '';
     },
   };
 
@@ -70,9 +75,9 @@ export default function ProgressScreen() {
   if (!statistics) {
     return (
       <View style={styles.emptyContainer}>
-        <Text style={styles.emptyTitle}>Sin datos</Text>
+        <Text style={styles.emptyTitle}>No data</Text>
         <Text style={styles.emptySubtitle}>
-          Crea listas y tareas para ver tus estadísticas
+          Create lists and tasks to see your statistics
         </Text>
       </View>
     );
@@ -80,97 +85,114 @@ export default function ProgressScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-      <LinearGradient
-        colors={[COLORS.primary, COLORS.primaryLight]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.header}>
-        <Text style={styles.headerTitle}>Estadísticas 📊</Text>
-        <Text style={styles.headerSubtitle}>Tu progreso y productividad</Text>
-      </LinearGradient>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Statistics</Text>
+        <Text style={styles.headerSubtitle}>Your progress and productivity</Text>
+      </View>
 
       <View style={styles.statsGrid}>
         <StatCard
-          title="Listas Totales"
+          title="Total Lists"
           value={statistics.totalLists}
           icon="albums-outline"
           color={COLORS.primary}
         />
         <StatCard
-          title="Tareas Totales"
+          title="Total Tasks"
           value={statistics.totalTasks}
           icon="checkbox-outline"
           color={COLORS.secondary}
         />
         <StatCard
-          title="Completadas"
+          title="Completed"
           value={statistics.completedTasks}
           icon="checkmark-circle-outline"
           color={COLORS.success}
         />
         <StatCard
-          title="Pendientes"
+          title="Pending"
           value={statistics.pendingTasks}
           icon="time-outline"
           color={COLORS.warning}
         />
         <StatCard
-          title="Tasa de Completitud"
-          value={`${statistics.completionRate.toFixed(1)}%`}
+          title="Completion Rate"
+          value={`${(statistics.completionPercentage || 0).toFixed(1)}%`}
           icon="stats-chart-outline"
-          color={statistics.completionRate >= 70 ? COLORS.success : statistics.completionRate >= 40 ? COLORS.warning : COLORS.danger}
+          color={(statistics.completionPercentage || 0) >= 70 ? COLORS.success : (statistics.completionPercentage || 0) >= 40 ? COLORS.warning : COLORS.danger}
           subtitle={
-            statistics.completionRate >= 70
-              ? '¡Excelente trabajo!'
-              : statistics.completionRate >= 40
-              ? 'Buen progreso'
-              : 'Sigue adelante'
+            (statistics.completionPercentage || 0) >= 70
+              ? 'Excellent work!'
+              : (statistics.completionPercentage || 0) >= 40
+              ? 'Good progress'
+              : 'Keep going'
           }
         />
       </View>
 
       {progressChart && progressChart.labels.length > 0 && (
         <View style={styles.chartSection}>
-          <Text style={styles.chartTitle}>📈 Progreso Temporal</Text>
-          <Text style={styles.chartSubtitle}>Tareas completadas en el tiempo</Text>
-          <LineChart
-            data={{
-              labels: progressChart.labels,
-              datasets: progressChart.datasets,
+          <Text style={styles.chartTitle}>Progress Over Time</Text>
+          <Text style={styles.chartSubtitle}>Completed tasks over time</Text>
+          <View
+            onLayout={(event) => {
+              const { width } = event.nativeEvent.layout;
+              setChartWidth(width);
             }}
-            width={screenWidth - 40}
-            height={220}
-            yAxisLabel=""
-            yAxisSuffix=""
-            chartConfig={chartConfig}
-            bezier
-            style={styles.chart}
-          />
+          >
+            <LineChart
+              data={{
+                labels: progressChart.labels,
+                datasets: progressChart.datasets,
+              }}
+              width={chartWidth}
+              height={220}
+              yAxisLabel=""
+              yAxisSuffix=""
+              chartConfig={chartConfig}
+              bezier
+              style={styles.chart}
+              fromZero
+            />
+          </View>
         </View>
       )}
 
-      {tasksChart && tasksChart.labels.length > 0 && (
-        <View style={styles.chartSection}>
-          <Text style={styles.chartTitle}>📊 Distribución de Tareas</Text>
-          <Text style={styles.chartSubtitle}>Tareas por categoría</Text>
-          <BarChart
-            data={{
-              labels: tasksChart.labels,
-              datasets: tasksChart.datasets,
-            }}
-            width={screenWidth - 40}
-            height={220}
-            yAxisLabel=""
-            yAxisSuffix=""
-            chartConfig={{
-              ...chartConfig,
-              color: (opacity = 1) => `rgba(82, 147, 204, ${opacity})`,
-            }}
-            style={styles.chart}
-            showValuesOnTopOfBars
-          />
-        </View>
-      )}
+      {tasksChart && tasksChart.labels.length > 0 && (() => {
+        // Transform data: combine datasets into a single dataset with total values per label
+        const transformedData = tasksChart.labels.map((_, index) => {
+          return tasksChart.datasets.reduce((sum, dataset) => sum + (dataset.data[index] || 0), 0);
+        });
+
+        return (
+          <View style={styles.chartSection}>
+            <Text style={styles.chartTitle}>Task Distribution</Text>
+            <Text style={styles.chartSubtitle}>Tasks by category</Text>
+            <View>
+              <BarChart
+                data={{
+                  labels: tasksChart.labels,
+                  datasets: [{
+                    data: transformedData,
+                  }],
+                }}
+                width={chartWidth}
+                height={220}
+                yAxisLabel=""
+                yAxisSuffix=""
+                chartConfig={{
+                  ...chartConfig,
+                  color: (opacity = 1) => `rgba(139, 115, 85, ${opacity})`,
+                  barPercentage: 0.7,
+                }}
+                style={styles.chart}
+                showValuesOnTopOfBars
+                fromZero
+              />
+            </View>
+          </View>
+        );
+      })()}
     </ScrollView>
   );
 }
@@ -178,7 +200,7 @@ export default function ProgressScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.parchment,
   },
   scrollContent: {
     paddingBottom: 100,
@@ -187,53 +209,50 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.parchment,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.parchment,
     paddingHorizontal: 40,
   },
   emptyTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: COLORS.gray,
-    marginBottom: 10,
+    fontSize: 24,
+    fontWeight: '600',
+    color: COLORS.inkLight,
+    marginBottom: 8,
     textAlign: 'center',
+    letterSpacing: 0.3,
   },
   emptySubtitle: {
-    fontSize: 16,
-    color: COLORS.gray,
+    fontSize: 15,
+    color: COLORS.inkFaded,
     textAlign: 'center',
+    letterSpacing: 0.2,
   },
   header: {
-    paddingTop: 60,
-    paddingBottom: 30,
+    paddingTop: 50,
+    paddingBottom: 20,
     paddingHorizontal: 24,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    marginBottom: 24,
-    shadowColor: COLORS.shadowDark,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 5,
+    backgroundColor: COLORS.cardBackground,
+    marginBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
   },
   headerTitle: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: COLORS.white,
+    fontSize: 28,
+    fontWeight: '600',
+    color: COLORS.ink,
     marginBottom: 6,
-    ...(Platform.OS === 'web' && {
-      textShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    }),
+    letterSpacing: 0.5,
   },
   headerSubtitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '500',
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: COLORS.inkMedium,
+    letterSpacing: 0.2,
   },
   statsGrid: {
     paddingHorizontal: 20,
@@ -241,20 +260,26 @@ const styles = StyleSheet.create({
   chartSection: {
     paddingHorizontal: 20,
     marginTop: 20,
+    overflow: 'hidden',
   },
   chartTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: COLORS.black,
-    marginBottom: 5,
+    fontSize: 18,
+    fontWeight: '600',
+    color: COLORS.ink,
+    marginBottom: 6,
+    letterSpacing: 0.3,
   },
   chartSubtitle: {
-    fontSize: 14,
-    color: COLORS.gray,
-    marginBottom: 15,
+    fontSize: 13,
+    color: COLORS.inkMedium,
+    marginBottom: 14,
+    letterSpacing: 0.2,
   },
   chart: {
     marginVertical: 8,
-    borderRadius: 16,
+    marginHorizontal: 0,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
 });

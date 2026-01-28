@@ -24,9 +24,9 @@ interface CreateTaskModalProps {
 }
 
 const TASK_TYPES = [
-  { value: 'NORMAL', label: 'Normal', color: COLORS.gray },
-  { value: 'IMPORTANT', label: 'Importante', color: COLORS.danger },
-  { value: 'URGENT', label: 'Urgente', color: '#FF9500' },
+  { value: 'FEATURED', label: 'Featured', color: COLORS.inkMedium, bgColor: COLORS.parchment },
+  { value: 'IMPORTANT', label: 'Important', color: COLORS.danger, bgColor: COLORS.dangerLight },
+  { value: 'TODAY', label: 'Today', color: COLORS.warning, bgColor: COLORS.warningLight },
 ];
 
 export default function CreateTaskModal({
@@ -37,14 +37,14 @@ export default function CreateTaskModal({
   onSuccess,
 }: CreateTaskModalProps) {
   const [description, setDescription] = useState('');
-  const [selectedType, setSelectedType] = useState<'NORMAL' | 'IMPORTANT' | 'URGENT'>('NORMAL');
+  const [selectedType, setSelectedType] = useState<'TODAY' | 'IMPORTANT' | 'FEATURED'>('FEATURED');
   const [date, setDate] = useState('');
   const [loading, setLoading] = useState(false);
   const { createTask } = useTasksStore();
 
   const handleCreate = async () => {
     if (!description.trim()) {
-      Alert.alert('Error', 'Por favor ingresa una descripción para la tarea');
+      Alert.alert('Error', 'Please enter a description for the task');
       return;
     }
 
@@ -52,18 +52,18 @@ export default function CreateTaskModal({
     try {
       await createTask(listId, {
         description: description.trim(),
-        taskType: selectedType,
+        type: selectedType,
         date: date || undefined,
         status: 'PENDING',
       });
 
       setDescription('');
-      setSelectedType('NORMAL');
+      setSelectedType('FEATURED');
       setDate('');
       if (onSuccess) onSuccess();
       onClose();
     } catch (error) {
-      Alert.alert('Error', 'No se pudo crear la tarea');
+      Alert.alert('Error', 'Could not create task');
     } finally {
       setLoading(false);
     }
@@ -72,7 +72,7 @@ export default function CreateTaskModal({
   const handleClose = () => {
     if (!loading) {
       setDescription('');
-      setSelectedType('NORMAL');
+      setSelectedType('FEATURED');
       setDate('');
       onClose();
     }
@@ -91,9 +91,12 @@ export default function CreateTaskModal({
           <ScrollView
             contentContainerStyle={styles.scrollContent}
             keyboardShouldPersistTaps="handled">
-            <View style={[styles.modal, { backgroundColor: listColor }]}>
+            <View style={styles.modal}>
               <View style={styles.header}>
-                <Text style={styles.title}>Nueva Tarea</Text>
+                <View style={styles.headerLeft}>
+                  <View style={[styles.colorStripe, { backgroundColor: listColor }]} />
+                  <Text style={styles.title}>New Task</Text>
+                </View>
                 <TouchableOpacity
                   onPress={handleClose}
                   disabled={loading}
@@ -104,11 +107,11 @@ export default function CreateTaskModal({
 
               <View style={styles.content}>
                 <View style={styles.inputContainer}>
-                  <Text style={styles.label}>Descripción</Text>
+                  <Text style={styles.label}>Description</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="¿Qué necesitas hacer?"
-                    placeholderTextColor="rgba(255, 255, 255, 0.6)"
+                    placeholder="What do you need to do?"
+                    placeholderTextColor={COLORS.inkFaded}
                     value={description}
                     onChangeText={setDescription}
                     maxLength={200}
@@ -120,22 +123,26 @@ export default function CreateTaskModal({
                 </View>
 
                 <View style={styles.typeContainer}>
-                  <Text style={styles.label}>Tipo de tarea</Text>
+                  <Text style={styles.label}>Task Type</Text>
                   <View style={styles.typeButtons}>
                     {TASK_TYPES.map((type) => (
                       <TouchableOpacity
                         key={type.value}
                         style={[
                           styles.typeButton,
-                          selectedType === type.value && styles.typeButtonSelected,
-                          selectedType === type.value && { borderColor: type.color },
+                          { backgroundColor: type.bgColor },
+                          selectedType === type.value && [
+                            styles.typeButtonSelected,
+                            { borderLeftColor: type.color },
+                          ],
                         ]}
                         onPress={() => setSelectedType(type.value as any)}
                         disabled={loading}>
                         <Text
                           style={[
                             styles.typeButtonText,
-                            selectedType === type.value && { color: type.color },
+                            { color: type.color },
+                            selectedType === type.value && styles.typeButtonTextSelected,
                           ]}>
                           {type.label}
                         </Text>
@@ -145,16 +152,16 @@ export default function CreateTaskModal({
                 </View>
 
                 <View style={styles.inputContainer}>
-                  <Text style={styles.label}>Fecha (opcional)</Text>
+                  <Text style={styles.label}>Date (optional)</Text>
                   <TextInput
                     style={styles.input}
                     placeholder="YYYY-MM-DD"
-                    placeholderTextColor="rgba(255, 255, 255, 0.6)"
+                    placeholderTextColor={COLORS.inkFaded}
                     value={date}
                     onChangeText={setDate}
                     editable={!loading}
                   />
-                  <Text style={styles.hint}>Formato: 2025-01-31</Text>
+                  <Text style={styles.hint}>Format: 2025-01-31</Text>
                 </View>
 
                 <TouchableOpacity
@@ -162,10 +169,10 @@ export default function CreateTaskModal({
                   onPress={handleCreate}
                   disabled={loading}>
                   {loading ? (
-                    <ActivityIndicator color={listColor} />
+                    <ActivityIndicator color={COLORS.cardBackground} />
                   ) : (
-                    <Text style={[styles.createButtonText, { color: listColor }]}>
-                      ✓
+                    <Text style={styles.createButtonText}>
+                      Create Task
                     </Text>
                   )}
                 </TouchableOpacity>
@@ -181,7 +188,7 @@ export default function CreateTaskModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(26, 26, 26, 0.4)',
     justifyContent: 'flex-end',
   },
   modalContainer: {
@@ -193,56 +200,82 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modal: {
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
+    backgroundColor: COLORS.cardBackground,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
     paddingBottom: Platform.OS === 'ios' ? 40 : 20,
-    minHeight: 550,
+    minHeight: 520,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 25,
-    paddingTop: 25,
-    paddingBottom: 15,
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  colorStripe: {
+    width: 4,
+    height: 24,
+    borderRadius: 2,
+    marginRight: 12,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: COLORS.white,
+    fontSize: 24,
+    fontWeight: '600',
+    color: COLORS.ink,
+    letterSpacing: 0.3,
   },
   closeButton: {
-    fontSize: 32,
-    color: COLORS.white,
+    fontSize: 28,
+    color: COLORS.inkLight,
     fontWeight: '300',
+    lineHeight: 28,
+    textAlign: 'center',
+    width: 32,
+    height: 32,
   },
   content: {
-    paddingHorizontal: 25,
+    paddingHorizontal: 24,
+    paddingTop: 24,
   },
   inputContainer: {
     marginBottom: 20,
   },
   label: {
-    fontSize: 16,
-    color: COLORS.white,
+    fontSize: 13,
+    color: COLORS.inkMedium,
     marginBottom: 10,
-    fontWeight: '600',
+    fontWeight: '500',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
   },
   input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: 15,
-    padding: 18,
-    fontSize: 16,
-    color: COLORS.white,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
+    backgroundColor: COLORS.parchment,
+    borderRadius: 6,
+    padding: 16,
+    fontSize: 15,
+    color: COLORS.ink,
+    borderWidth: 1,
+    borderColor: COLORS.border,
     textAlignVertical: 'top',
+    letterSpacing: 0.2,
   },
   hint: {
     fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.7)',
-    marginTop: 5,
-    marginLeft: 5,
+    color: COLORS.inkFaded,
+    marginTop: 6,
+    marginLeft: 4,
+    letterSpacing: 0.2,
   },
   typeContainer: {
     marginBottom: 20,
@@ -253,42 +286,44 @@ const styles = StyleSheet.create({
   },
   typeButton: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 15,
+    borderRadius: 4,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderLeftWidth: 3,
   },
   typeButtonSelected: {
-    backgroundColor: COLORS.white,
+    borderColor: COLORS.borderDark,
   },
   typeButtonText: {
-    fontSize: 14,
-    color: COLORS.white,
+    fontSize: 13,
+    fontWeight: '500',
+    letterSpacing: 0.3,
+  },
+  typeButtonTextSelected: {
     fontWeight: '600',
   },
   createButton: {
-    backgroundColor: COLORS.white,
-    borderRadius: 30,
-    width: 60,
-    height: 60,
+    backgroundColor: COLORS.accent,
+    borderRadius: 6,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    alignSelf: 'center',
-    marginTop: 20,
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 8,
+    alignSelf: 'stretch',
+    marginTop: 24,
+    borderWidth: 1,
+    borderColor: COLORS.accentLight,
   },
   buttonDisabled: {
-    opacity: 0.6,
+    opacity: 0.5,
   },
   createButtonText: {
-    fontSize: 36,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.cardBackground,
+    letterSpacing: 0.5,
   },
 });

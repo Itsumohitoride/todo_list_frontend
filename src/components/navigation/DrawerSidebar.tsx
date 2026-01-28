@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../utils/colors';
 import { useAuthStore } from '../../store/authStore';
 import CreateListModal from '../modals/CreateListModal';
+import JoinSharedListModal from '../modals/JoinSharedListModal';
 
 interface DrawerSidebarProps {
   activeRoute: string;
@@ -13,11 +14,12 @@ interface DrawerSidebarProps {
 export default function DrawerSidebar({ activeRoute, onNavigate }: DrawerSidebarProps) {
   const { user } = useAuthStore();
   const [createModalVisible, setCreateModalVisible] = useState(false);
+  const [joinModalVisible, setJoinModalVisible] = useState(false);
 
   const menuItems = [
-    { key: 'Home', label: 'Mis Listas', icon: 'home-outline' as const, iconFilled: 'home' as const },
-    { key: 'Progress', label: 'Progreso', icon: 'stats-chart-outline' as const, iconFilled: 'stats-chart' as const },
-    { key: 'Profile', label: 'Perfil', icon: 'person-outline' as const, iconFilled: 'person' as const },
+    { key: 'Home', label: 'My Lists', icon: 'home-outline' as const, iconFilled: 'home' as const },
+    { key: 'Progress', label: 'Progress', icon: 'stats-chart-outline' as const, iconFilled: 'stats-chart' as const },
+    { key: 'Profile', label: 'Profile', icon: 'person-outline' as const, iconFilled: 'person' as const },
   ];
 
   return (
@@ -81,7 +83,22 @@ export default function DrawerSidebar({ activeRoute, onNavigate }: DrawerSidebar
               },
             })}>
             <Ionicons name="add" size={24} color={COLORS.white} />
-            <Text style={styles.createButtonText}>Nueva Lista</Text>
+            <Text style={styles.createButtonText}>New List</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.joinButton}
+            onPress={() => setJoinModalVisible(true)}
+            {...(Platform.OS === 'web' && {
+              onMouseEnter: (e: any) => {
+                e.currentTarget.style.opacity = '0.9';
+              },
+              onMouseLeave: (e: any) => {
+                e.currentTarget.style.opacity = '1';
+              },
+            })}>
+            <Ionicons name="link-outline" size={22} color={COLORS.accent} />
+            <Text style={styles.joinButtonText}>Join Shared List</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -89,6 +106,12 @@ export default function DrawerSidebar({ activeRoute, onNavigate }: DrawerSidebar
       <CreateListModal
         visible={createModalVisible}
         onClose={() => setCreateModalVisible(false)}
+      />
+
+      <JoinSharedListModal
+        visible={joinModalVisible}
+        onClose={() => setJoinModalVisible(false)}
+        onSuccess={() => onNavigate('Home')}
       />
     </>
   );
@@ -167,6 +190,7 @@ const styles = StyleSheet.create({
     padding: 24,
     borderTopWidth: 1,
     borderTopColor: COLORS.background,
+    gap: 12,
   },
   createButton: {
     backgroundColor: COLORS.primary,
@@ -184,6 +208,27 @@ const styles = StyleSheet.create({
   },
   createButtonText: {
     color: COLORS.white,
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  joinButton: {
+    backgroundColor: COLORS.cardBackground,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    ...(Platform.OS === 'web' && {
+      cursor: 'pointer',
+      transition: 'opacity 0.2s',
+    }),
+  },
+  joinButtonText: {
+    color: COLORS.accent,
     fontSize: 16,
     fontWeight: '700',
   },

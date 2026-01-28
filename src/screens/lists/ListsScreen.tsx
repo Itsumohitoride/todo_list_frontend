@@ -21,6 +21,7 @@ import ListCard from '../../components/lists/ListCard';
 import CreateListModal from '../../components/modals/CreateListModal';
 import EditListModal from '../../components/modals/EditListModal';
 import ShareListModal from '../../components/modals/ShareListModal';
+import JoinSharedListModal from '../../components/modals/JoinSharedListModal';
 import { ListsStackParamList, TodoList } from '../../types';
 
 type Props = NativeStackScreenProps<ListsStackParamList, 'Lists'>;
@@ -32,6 +33,7 @@ export default function ListsScreen({ navigation }: Props) {
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [shareModalVisible, setShareModalVisible] = useState(false);
+  const [joinModalVisible, setJoinModalVisible] = useState(false);
   const [selectedListForEdit, setSelectedListForEdit] = useState<TodoList | null>(null);
   const [selectedListForShare, setSelectedListForShare] = useState<TodoList | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -110,39 +112,37 @@ export default function ListsScreen({ navigation }: Props) {
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
       <View style={styles.emptyTextContainer}>
-        <Text style={styles.emptyTitleBlack}>Crea Una</Text>
-        <Text style={styles.emptyTitleBlue}>¡Lista!</Text>
+        <Text style={styles.emptyTitleBlack}>Create a</Text>
+        <Text style={styles.emptyTitleBlue}>List!</Text>
       </View>
     </View>
   );
 
   const renderHeader = () => (
     <View style={styles.header}>
-      <View style={styles.headerContent}>
-        {user && (
-          <View style={styles.avatar}>
-            <Ionicons name="person" size={28} color={COLORS.gray} />
+      <View style={styles.headerTop}>
+        <Text style={styles.headerTitle}>Lists</Text>
+        <TouchableOpacity
+          style={styles.joinButton}
+          onPress={() => setJoinModalVisible(true)}>
+          <Ionicons name="link-outline" size={20} color={COLORS.accent} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.searchWrapper}>
+        <Ionicons name="search" size={18} color={COLORS.inkLight} style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search lists..."
+          placeholderTextColor={COLORS.inkFaded}
+          value={searchQuery}
+          onChangeText={handleSearchChange}
+        />
+        {searching && (
+          <View style={styles.searchingIndicator}>
+            <ActivityIndicator size="small" color={COLORS.accent} />
           </View>
         )}
-
-        <View style={styles.searchWrapper}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder=""
-            placeholderTextColor={COLORS.textLight}
-            value={searchQuery}
-            onChangeText={handleSearchChange}
-          />
-          {searching && (
-            <View style={styles.searchingIndicator}>
-              <ActivityIndicator size="small" color={COLORS.primary} />
-            </View>
-          )}
-        </View>
-
-        <TouchableOpacity style={styles.searchButton}>
-          <Ionicons name="search" size={28} color={COLORS.darkGray} />
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -192,7 +192,7 @@ export default function ListsScreen({ navigation }: Props) {
           ListEmptyComponent={
             <View style={styles.emptySearchContainer}>
               <Text style={styles.emptySearchText}>
-                No se encontraron listas
+                No lists found
               </Text>
             </View>
           }
@@ -225,6 +225,15 @@ export default function ListsScreen({ navigation }: Props) {
           setSelectedListForShare(null);
         }}
       />
+
+      <JoinSharedListModal
+        visible={joinModalVisible}
+        onClose={() => setJoinModalVisible(false)}
+        onSuccess={(listId) => {
+          loadLists();
+          // Optionally navigate to the newly joined list
+        }}
+      />
     </View>
   );
 }
@@ -241,49 +250,56 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   header: {
-    backgroundColor: COLORS.backgroundSecondary,
+    backgroundColor: COLORS.parchment,
     paddingTop: 50,
-    paddingBottom: 16,
-    paddingHorizontal: 20,
+    paddingBottom: 20,
+    paddingHorizontal: 24,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.lightGray,
+    borderBottomColor: COLORS.border,
   },
-  headerContent: {
+  headerTop: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 12,
+    marginBottom: 16,
   },
-  avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: COLORS.lightGray,
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: '600',
+    color: COLORS.ink,
+    letterSpacing: 0.5,
+  },
+  joinButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 6,
+    backgroundColor: COLORS.cardBackground,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   searchWrapper: {
-    flex: 1,
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.cardBackground,
+    borderRadius: 6,
     borderWidth: 1,
-    borderColor: COLORS.lightGray,
-    paddingHorizontal: 16,
+    borderColor: COLORS.border,
+    paddingHorizontal: 14,
     paddingVertical: 10,
   },
+  searchIcon: {
+    marginRight: 10,
+  },
   searchInput: {
+    flex: 1,
     fontSize: 15,
-    color: COLORS.textPrimary,
+    color: COLORS.ink,
+    letterSpacing: 0.2,
   },
   searchingIndicator: {
-    position: 'absolute',
-    right: 12,
-  },
-  searchButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginLeft: 8,
   },
   listContainer: {
     padding: 20,
@@ -311,17 +327,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyTitleBlack: {
-    fontSize: 48,
-    fontWeight: '700',
-    color: COLORS.black,
+    fontSize: 40,
+    fontWeight: '600',
+    color: COLORS.ink,
     textAlign: 'center',
     marginBottom: 8,
+    letterSpacing: 0.5,
   },
   emptyTitleBlue: {
-    fontSize: 56,
-    fontWeight: '800',
-    color: '#2196F3',
+    fontSize: 44,
+    fontWeight: '600',
+    color: COLORS.accent,
     textAlign: 'center',
+    letterSpacing: 0.5,
   },
   emptySearchContainer: {
     padding: 40,

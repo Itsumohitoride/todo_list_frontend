@@ -6,14 +6,14 @@ interface CreateTaskData {
   description: string;
   status?: 'PENDING' | 'COMPLETED';
   date?: string;
-  taskType?: 'NORMAL' | 'IMPORTANT' | 'URGENT';
+  type: 'TODAY' | 'IMPORTANT' | 'FEATURED';
 }
 
 interface UpdateTaskData {
   description?: string;
   status?: 'PENDING' | 'COMPLETED';
   date?: string;
-  taskType?: 'NORMAL' | 'IMPORTANT' | 'URGENT';
+  type?: 'TODAY' | 'IMPORTANT' | 'FEATURED';
 }
 
 interface ErrorResponse {

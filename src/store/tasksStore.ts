@@ -6,7 +6,7 @@ interface CreateTaskData {
   description: string;
   status?: 'PENDING' | 'COMPLETED';
   date?: string;
-  taskType?: 'NORMAL' | 'IMPORTANT' | 'URGENT';
+  type: 'TODAY' | 'IMPORTANT' | 'FEATURED';
 }
 
 interface TasksState {
@@ -141,7 +141,7 @@ export const useTasksStore = create<TasksState>((set, get) => ({
 
   filterByCategory: (category: string) => {
     const tasks = get().tasks;
-    return tasks.filter((task) => task.taskType === category);
+    return tasks.filter((task) => task.type === category);
   },
 
   filterByStatus: async (listId: string, status: 'PENDING' | 'COMPLETED') => {

@@ -56,6 +56,8 @@ export const listsApi = {
 
   /**
    * Get all lists, optionally filtered by user
+   * Note: Currently the backend GET /api/lists?userId only returns owned lists,
+   * not shared lists. This is a backend limitation that needs to be fixed.
    * @param userId - Optional user ID to filter
    * @returns Array of TodoLists
    */
@@ -63,10 +65,11 @@ export const listsApi = {
     try {
       const params = userId ? { userId } : {};
       const response = await apiClient.get<TodoList[]>('/lists', { params });
+      console.log('[getLists] Backend returned:', response.data.length, 'lists');
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError<ErrorResponse>;
-      throw axiosError.response?.data?.message || 'Error al obtener listas';
+      throw axiosError.response?.data?.message || 'Failed to get lists';
     }
   },
 

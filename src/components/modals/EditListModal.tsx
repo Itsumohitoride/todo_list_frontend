@@ -90,7 +90,7 @@ export default function EditListModal({
             keyboardShouldPersistTaps="handled">
             <View style={[styles.modal, { backgroundColor: selectedColor }]}>
               <View style={styles.header}>
-                <Text style={styles.title}>Editar Lista</Text>
+                <Text style={styles.title}>Edit List</Text>
                 <TouchableOpacity
                   onPress={handleClose}
                   disabled={loading}
@@ -101,10 +101,10 @@ export default function EditListModal({
 
               <View style={styles.content}>
                 <View style={styles.inputContainer}>
-                  <Text style={styles.label}>Nombre</Text>
+                  <Text style={styles.label}>Name</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="Nombre de la lista"
+                    placeholder="List name"
                     placeholderTextColor="rgba(255, 255, 255, 0.6)"
                     value={listName}
                     onChangeText={setListName}
@@ -115,7 +115,7 @@ export default function EditListModal({
                 </View>
 
                 <View style={styles.colorSection}>
-                  <Text style={styles.colorLabel}>Color de la lista</Text>
+                  <Text style={styles.colorLabel}>List Color</Text>
                   <ColorPicker
                     selectedColor={selectedColor}
                     onSelectColor={setSelectedColor}
@@ -125,7 +125,7 @@ export default function EditListModal({
                 {list.listType === 'SHARED' && (
                   <View style={styles.shareInfo}>
                     <Text style={styles.shareInfoText}>
-                      Esta es una lista compartida
+                      This is a shared list
                     </Text>
                   </View>
                 )}
@@ -136,7 +136,7 @@ export default function EditListModal({
                     onPress={() => setShareModalVisible(true)}
                     disabled={loading}>
                     <Text style={styles.shareButtonIcon}>✈️</Text>
-                    <Text style={styles.shareButtonText}>Compartir Lista</Text>
+                    <Text style={styles.shareButtonText}>Share List</Text>
                   </TouchableOpacity>
                 )}
 

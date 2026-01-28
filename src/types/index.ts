@@ -31,17 +31,17 @@ export interface Task {
   description: string;
   status: 'PENDING' | 'COMPLETED';
   date?: string;
-  taskType: 'NORMAL' | 'IMPORTANT' | 'URGENT';
+  type: 'TODAY' | 'IMPORTANT' | 'FEATURED';
   listId: string;
 }
 
 export interface Sharing {
   id: string;
-  listId: string;
+  todoListId: string;
   shareToken: string;
-  qrCodeUrl: string;
   shareableLink: string;
   createdAt: string;
+  sharedUserIds?: string[];
 }
 
 export interface Statistics {
@@ -50,7 +50,7 @@ export interface Statistics {
   totalTasks: number;
   completedTasks: number;
   pendingTasks: number;
-  completionRate: number;
+  completionPercentage: number;
   calculatedAt: string;
 }
 

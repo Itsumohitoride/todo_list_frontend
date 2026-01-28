@@ -21,7 +21,7 @@ export const statisticsApi = {
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError<ErrorResponse>;
-      throw axiosError.response?.data?.message || 'Error al obtener estadísticas';
+      throw axiosError.response?.data?.message || 'Error fetching statistics';
     }
   },
 
@@ -36,7 +36,7 @@ export const statisticsApi = {
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError<ErrorResponse>;
-      throw axiosError.response?.data?.message || 'Error al obtener gráfica de progreso';
+      throw axiosError.response?.data?.message || 'Error fetching progress chart';
     }
   },
 
@@ -51,7 +51,7 @@ export const statisticsApi = {
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError<ErrorResponse>;
-      throw axiosError.response?.data?.message || 'Error al obtener gráfica de tareas';
+      throw axiosError.response?.data?.message || 'Error fetching tasks chart';
     }
   },
 };

@@ -4,7 +4,6 @@
 node_modules/
 
 # Expo
-.expo/
 dist/
 web-build/
 expo-env.d.ts
@@ -40,6 +39,17 @@ yarn-error.*
 /ios
 /android
 
-# claude
-.claude
+# Personal and documentation files
 especs/
+*.json.tmp
+swagger*.json
+api-docs.json
+
+# All dot folders except important ones
+.*
+!.gitignore
+!.github
+!.vscode
+!.eslintrc*
+!.prettierrc*
+!.babelrc*

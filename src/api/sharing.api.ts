@@ -18,96 +18,105 @@ export const sharingApi = {
   /**
    * Create a sharing link for a list
    * @param listId - List ID
-   * @returns Sharing information with token and QR code
+   * @returns Sharing information with token
    */
   createSharing: async (listId: string): Promise<Sharing> => {
     try {
-      const response = await apiClient.post<Sharing>(`/lists/${listId}/share`);
+      const response = await apiClient.post<Sharing>(`/sharing/lists/${listId}`);
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError<ErrorResponse>;
-      throw axiosError.response?.data?.message || 'Error al crear compartir';
+      throw axiosError.response?.data?.message || 'Failed to create sharing';
     }
   },
 
   /**
-   * Get QR code image for sharing
-   * @param sharingId - Sharing ID
-   * @returns QR code image blob
+   * Get sharing info for a list
+   * @param listId - List ID
+   * @returns Sharing information
    */
-  getQRCode: async (sharingId: string): Promise<Blob> => {
+  getSharingByList: async (listId: string): Promise<Sharing> => {
     try {
-      const response = await apiClient.get(`/sharing/${sharingId}/qr`, {
-        responseType: 'blob',
-      });
+      const response = await apiClient.get<Sharing>(`/sharing/lists/${listId}`);
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError<ErrorResponse>;
-      throw axiosError.response?.data?.message || 'Error al obtener código QR';
+      throw axiosError.response?.data?.message || 'Failed to get sharing info';
     }
   },
 
   /**
-   * Get shareable link URL
-   * @param sharingId - Sharing ID
-   * @returns Shareable link
+   * Get QR code image for sharing (returns image URL to use with shareToken)
+   * @param shareToken - Share token
+   * @param width - QR width (default 300)
+   * @param height - QR height (default 300)
+   * @returns QR code image URL
    */
-  getShareableLink: async (sharingId: string): Promise<{ shareableLink: string }> => {
-    try {
-      const response = await apiClient.get<{ shareableLink: string }>(
-        `/sharing/${sharingId}/link`
-      );
-      return response.data;
-    } catch (error) {
-      const axiosError = error as AxiosError<ErrorResponse>;
-      throw axiosError.response?.data?.message || 'Error al obtener link';
-    }
+  getQRCodeUrl: (shareToken: string, width: number = 300, height: number = 300): string => {
+    return `http://localhost:8080/api/sharing/qr/${shareToken}?width=${width}&height=${height}`;
   },
 
   /**
    * Join a shared list using share token
    * @param shareToken - Share token
-   * @returns Join confirmation with list ID
+   * @param userId - User ID joining the list
+   * @returns Sharing information
    */
-  joinSharedList: async (shareToken: string): Promise<JoinSharedListResponse> => {
+  joinSharedList: async (shareToken: string, userId: string): Promise<Sharing> => {
     try {
-      const response = await apiClient.post<JoinSharedListResponse>(
-        `/sharing/${shareToken}/join`
+      const response = await apiClient.post<Sharing>(
+        `/sharing/join/${shareToken}`,
+        { userId }
       );
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError<ErrorResponse>;
-      throw axiosError.response?.data?.message || 'Error al unirse a lista compartida';
+      throw axiosError.response?.data?.message || 'Failed to join shared list';
     }
   },
 
   /**
-   * Get list of users who have access to a shared list
+   * Get list of user IDs who have access to a shared list
    * @param listId - List ID
-   * @returns Array of Users
+   * @returns Array of user IDs
    */
-  getSharedUsers: async (listId: string): Promise<User[]> => {
+  getSharedUsers: async (listId: string): Promise<string[]> => {
     try {
-      const response = await apiClient.get<User[]>(`/lists/${listId}/shared-users`);
+      const response = await apiClient.get<string[]>(`/sharing/lists/${listId}/users`);
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError<ErrorResponse>;
-      throw axiosError.response?.data?.message || 'Error al obtener usuarios compartidos';
+      throw axiosError.response?.data?.message || 'Failed to get shared users';
     }
   },
 
   /**
-   * Get sharing information
+   * Get sharing information by ID
    * @param sharingId - Sharing ID
    * @returns Sharing information
    */
-  getSharingInfo: async (sharingId: string): Promise<Sharing> => {
+  getSharingById: async (sharingId: string): Promise<Sharing> => {
     try {
       const response = await apiClient.get<Sharing>(`/sharing/${sharingId}`);
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError<ErrorResponse>;
-      throw axiosError.response?.data?.message || 'Error al obtener información de compartir';
+      throw axiosError.response?.data?.message || 'Failed to get sharing info';
+    }
+  },
+
+  /**
+   * Get sharing information by token
+   * @param shareToken - Share token
+   * @returns Sharing information
+   */
+  getSharingByToken: async (shareToken: string): Promise<Sharing> => {
+    try {
+      const response = await apiClient.get<Sharing>(`/sharing/token/${shareToken}`);
+      return response.data;
+    } catch (error) {
+      const axiosError = error as AxiosError<ErrorResponse>;
+      throw axiosError.response?.data?.message || 'Failed to get sharing info';
     }
   },
 
@@ -120,7 +129,7 @@ export const sharingApi = {
       await apiClient.delete(`/sharing/${sharingId}`);
     } catch (error) {
       const axiosError = error as AxiosError<ErrorResponse>;
-      throw axiosError.response?.data?.message || 'Error al eliminar compartir';
+      throw axiosError.response?.data?.message || 'Failed to delete sharing';
     }
   },
 };

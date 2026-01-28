@@ -34,7 +34,7 @@ export default function CreateListModal({
 
   const handleCreate = async () => {
     if (!listName.trim()) {
-      Alert.alert('Error', 'Por favor ingresa un nombre para la lista');
+      Alert.alert('Error', 'Please enter a name for the list');
       return;
     }
 
@@ -46,7 +46,7 @@ export default function CreateListModal({
       if (onSuccess) onSuccess();
       onClose();
     } catch (error) {
-      Alert.alert('Error', 'No se pudo crear la lista');
+      Alert.alert('Error', 'Could not create list');
     } finally {
       setLoading(false);
     }
@@ -73,9 +73,9 @@ export default function CreateListModal({
           <ScrollView
             contentContainerStyle={styles.scrollContent}
             keyboardShouldPersistTaps="handled">
-            <View style={[styles.modal, { backgroundColor: selectedColor }]}>
+            <View style={styles.modal}>
               <View style={styles.header}>
-                <Text style={styles.title}>Nueva Lista</Text>
+                <Text style={styles.title}>New List</Text>
                 <TouchableOpacity
                   onPress={handleClose}
                   disabled={loading}
@@ -85,18 +85,21 @@ export default function CreateListModal({
               </View>
 
               <View style={styles.content}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Nombre de la lista"
-                  placeholderTextColor="rgba(255, 255, 255, 0.6)"
-                  value={listName}
-                  onChangeText={setListName}
-                  maxLength={50}
-                  editable={!loading}
-                  autoFocus
-                />
+                <View style={styles.inputWrapper}>
+                  <View style={[styles.colorPreview, { backgroundColor: selectedColor }]} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="List name"
+                    placeholderTextColor={COLORS.inkFaded}
+                    value={listName}
+                    onChangeText={setListName}
+                    maxLength={50}
+                    editable={!loading}
+                    autoFocus
+                  />
+                </View>
 
-                <Text style={styles.colorLabel}>Selecciona un color</Text>
+                <Text style={styles.colorLabel}>Accent Color</Text>
                 <ColorPicker
                   selectedColor={selectedColor}
                   onSelectColor={setSelectedColor}
@@ -107,10 +110,10 @@ export default function CreateListModal({
                   onPress={handleCreate}
                   disabled={loading}>
                   {loading ? (
-                    <ActivityIndicator color={selectedColor} />
+                    <ActivityIndicator color={COLORS.cardBackground} />
                   ) : (
-                    <Text style={[styles.createButtonText, { color: selectedColor }]}>
-                      ✓
+                    <Text style={styles.createButtonText}>
+                      Create List
                     </Text>
                   )}
                 </TouchableOpacity>
@@ -126,7 +129,7 @@ export default function CreateListModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(26, 26, 26, 0.4)',
     justifyContent: 'flex-end',
   },
   modalContainer: {
@@ -138,69 +141,92 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modal: {
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
+    backgroundColor: COLORS.cardBackground,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
     paddingBottom: Platform.OS === 'ios' ? 40 : 20,
-    minHeight: 450,
+    minHeight: 420,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 25,
-    paddingTop: 25,
-    paddingBottom: 15,
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: COLORS.white,
+    fontSize: 24,
+    fontWeight: '600',
+    color: COLORS.ink,
+    letterSpacing: 0.3,
   },
   closeButton: {
-    fontSize: 32,
-    color: COLORS.white,
+    fontSize: 28,
+    color: COLORS.inkLight,
     fontWeight: '300',
+    lineHeight: 28,
+    textAlign: 'center',
+    width: 32,
+    height: 32,
   },
   content: {
-    paddingHorizontal: 25,
+    paddingHorizontal: 24,
+    paddingTop: 24,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 28,
+  },
+  colorPreview: {
+    width: 4,
+    height: 48,
+    borderRadius: 2,
+    marginRight: 12,
   },
   input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: 15,
-    padding: 18,
-    fontSize: 18,
-    color: COLORS.white,
-    marginBottom: 30,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
+    flex: 1,
+    backgroundColor: COLORS.parchment,
+    borderRadius: 6,
+    padding: 16,
+    fontSize: 16,
+    color: COLORS.ink,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    letterSpacing: 0.2,
   },
   colorLabel: {
-    fontSize: 16,
-    color: COLORS.white,
-    marginBottom: 15,
-    textAlign: 'center',
-    fontWeight: '600',
+    fontSize: 13,
+    color: COLORS.inkMedium,
+    marginBottom: 14,
+    fontWeight: '500',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
   },
   createButton: {
-    backgroundColor: COLORS.white,
-    borderRadius: 30,
-    width: 60,
-    height: 60,
+    backgroundColor: COLORS.accent,
+    borderRadius: 6,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    alignSelf: 'center',
-    marginTop: 30,
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 8,
+    alignSelf: 'stretch',
+    marginTop: 28,
+    borderWidth: 1,
+    borderColor: COLORS.accentLight,
   },
   buttonDisabled: {
-    opacity: 0.6,
+    opacity: 0.5,
   },
   createButtonText: {
-    fontSize: 36,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.cardBackground,
+    letterSpacing: 0.5,
   },
 });

@@ -67,7 +67,9 @@ export default function CustomTabBar({ state, descriptors, navigation }: BottomT
           style={styles.fab}
           onPress={() => setCreateModalVisible(true)}
           activeOpacity={0.8}>
-          <Ionicons name="add" size={32} color={COLORS.white} />
+          <View style={styles.fabInner}>
+            <Text style={styles.fabText}>+</Text>
+          </View>
         </TouchableOpacity>
       </View>
 
@@ -85,17 +87,17 @@ const styles = StyleSheet.create({
   },
   tabBar: {
     flexDirection: 'row',
-    backgroundColor: COLORS.white,
-    height: 70,
+    backgroundColor: COLORS.cardBackground,
+    height: 64,
     borderTopWidth: 1,
-    borderTopColor: COLORS.background,
-    paddingBottom: 10,
-    paddingTop: 10,
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 8,
+    borderTopColor: COLORS.border,
+    paddingBottom: 8,
+    paddingTop: 8,
+    shadowColor: COLORS.shadow,
+    shadowOffset: { width: 0, height: -1 },
+    shadowOpacity: 1,
+    shadowRadius: 2,
+    elevation: 4,
   },
   tab: {
     flex: 1,
@@ -103,23 +105,39 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   fabPlaceholder: {
-    width: 80,
+    width: 70,
   },
   fab: {
     position: 'absolute',
-    bottom: 25,
+    bottom: 18,
     left: '50%',
-    marginLeft: -35,
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: COLORS.primary,
+    marginLeft: -28,
+    width: 56,
+    height: 56,
+    borderRadius: 6,
+    backgroundColor: COLORS.accent,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 10,
+    borderWidth: 1,
+    borderColor: COLORS.accentLight,
+    shadowColor: COLORS.shadowDark,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 3,
+    elevation: 4,
+  },
+  fabInner: {
+    width: 56,
+    height: 56,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fabText: {
+    fontSize: 30,
+    color: COLORS.cardBackground,
+    fontWeight: '300',
+    includeFontPadding: false,
+    textAlignVertical: 'center',
+    marginTop: -2,
   },
 });

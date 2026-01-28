@@ -3,24 +3,27 @@ import { View, Text, StyleSheet } from 'react-native';
 import { COLORS } from '../../utils/colors';
 
 interface CategoryBadgeProps {
-  taskType: 'NORMAL' | 'IMPORTANT' | 'URGENT';
+  type: 'TODAY' | 'IMPORTANT' | 'FEATURED';
   size?: 'small' | 'medium' | 'large';
 }
 
 const TASK_TYPE_CONFIG = {
-  NORMAL: {
-    label: 'Normal',
-    color: COLORS.gray,
-    visible: false, // Don't show badge for normal tasks
+  FEATURED: {
+    label: 'Featured',
+    color: COLORS.inkLight,
+    textColor: COLORS.cardBackground,
+    visible: false, // Don't show badge for featured tasks
   },
   IMPORTANT: {
-    label: 'Importante',
-    color: COLORS.danger,
+    label: 'Important',
+    color: COLORS.dangerLight,
+    textColor: COLORS.danger,
     visible: true,
   },
-  URGENT: {
-    label: 'Urgente',
-    color: '#FF9500',
+  TODAY: {
+    label: 'Today',
+    color: COLORS.warningLight,
+    textColor: COLORS.warning,
     visible: true,
   },
 };
@@ -28,26 +31,26 @@ const TASK_TYPE_CONFIG = {
 const SIZE_CONFIG = {
   small: {
     paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingVertical: 2,
     fontSize: 10,
-    borderRadius: 10,
+    borderRadius: 3,
   },
   medium: {
     paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: 3,
     fontSize: 11,
-    borderRadius: 12,
+    borderRadius: 3,
   },
   large: {
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 4,
     fontSize: 12,
-    borderRadius: 14,
+    borderRadius: 4,
   },
 };
 
-export default function CategoryBadge({ taskType, size = 'medium' }: CategoryBadgeProps) {
-  const config = TASK_TYPE_CONFIG[taskType];
+export default function CategoryBadge({ type, size = 'medium' }: CategoryBadgeProps) {
+  const config = TASK_TYPE_CONFIG[type];
   const sizeConfig = SIZE_CONFIG[size];
 
   if (!config.visible) {
@@ -70,6 +73,7 @@ export default function CategoryBadge({ taskType, size = 'medium' }: CategoryBad
           styles.badgeText,
           {
             fontSize: sizeConfig.fontSize,
+            color: config.textColor,
           },
         ]}>
         {config.label}
@@ -81,10 +85,13 @@ export default function CategoryBadge({ taskType, size = 'medium' }: CategoryBad
 const styles = StyleSheet.create({
   badge: {
     alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
   badgeText: {
-    color: COLORS.white,
     fontWeight: '600',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
   },
 });
 

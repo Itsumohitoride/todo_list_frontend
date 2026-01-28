@@ -64,6 +64,8 @@ export const useListsStore = create<ListsState>((set, get) => ({
       }
 
       const lists = await listsApi.getLists(user.userId);
+      console.log('Fetched lists count:', lists.length);
+      console.log('Lists:', JSON.stringify(lists, null, 2));
 
       // Save to cache
       const storage = getStorage();

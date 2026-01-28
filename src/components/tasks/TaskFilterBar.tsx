@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { COLORS } from '../../utils/colors';
 
-export type TaskFilter = 'ALL' | 'IMPORTANT' | 'URGENT' | 'PENDING' | 'COMPLETED';
+export type TaskFilter = 'ALL' | 'IMPORTANT' | 'TODAY' | 'PENDING' | 'COMPLETED';
 
 interface TaskFilterBarProps {
   selectedFilter: TaskFilter;
@@ -11,11 +11,11 @@ interface TaskFilterBarProps {
 }
 
 const FILTERS = [
-  { value: 'ALL' as TaskFilter, label: 'Todas', icon: '📋' },
-  { value: 'PENDING' as TaskFilter, label: 'Pendientes', icon: '⏳' },
-  { value: 'COMPLETED' as TaskFilter, label: 'Completadas', icon: '✓' },
-  { value: 'IMPORTANT' as TaskFilter, label: 'Importantes', icon: '⚠️' },
-  { value: 'URGENT' as TaskFilter, label: 'Urgentes', icon: '🔥' },
+  { value: 'ALL' as TaskFilter, label: 'All' },
+  { value: 'PENDING' as TaskFilter, label: 'Pending' },
+  { value: 'COMPLETED' as TaskFilter, label: 'Completed' },
+  { value: 'IMPORTANT' as TaskFilter, label: 'Important' },
+  { value: 'TODAY' as TaskFilter, label: 'Today' },
 ];
 
 export default function TaskFilterBar({
@@ -36,14 +36,13 @@ export default function TaskFilterBar({
               key={filter.value}
               style={[
                 styles.filterButton,
-                isSelected && {
-                  backgroundColor: accentColor,
-                  borderColor: accentColor,
-                },
+                isSelected && [
+                  styles.filterButtonSelected,
+                  { borderLeftColor: accentColor },
+                ],
               ]}
               onPress={() => onFilterChange(filter.value)}
               activeOpacity={0.7}>
-              <Text style={styles.filterIcon}>{filter.icon}</Text>
               <Text
                 style={[
                   styles.filterText,
@@ -61,40 +60,41 @@ export default function TaskFilterBar({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.white,
-    paddingVertical: 15,
-    borderRadius: 15,
-    marginBottom: 15,
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    backgroundColor: COLORS.cardBackground,
+    paddingVertical: 14,
+    borderRadius: 6,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    gap: 10,
+    paddingHorizontal: 16,
+    gap: 8,
   },
   filterButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    backgroundColor: COLORS.background,
-    borderWidth: 2,
-    borderColor: COLORS.background,
-    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 4,
+    backgroundColor: COLORS.parchment,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderLeftWidth: 3,
+    borderLeftColor: COLORS.border,
   },
-  filterIcon: {
-    fontSize: 16,
+  filterButtonSelected: {
+    backgroundColor: COLORS.cardBackground,
+    borderColor: COLORS.borderDark,
   },
   filterText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.black,
+    fontSize: 13,
+    fontWeight: '500',
+    color: COLORS.inkMedium,
+    letterSpacing: 0.3,
   },
   filterTextSelected: {
-    color: COLORS.white,
+    color: COLORS.ink,
+    fontWeight: '600',
   },
 });

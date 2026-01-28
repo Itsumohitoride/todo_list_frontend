@@ -93,7 +93,7 @@ export default function EditProfileModal({
             keyboardShouldPersistTaps="handled">
             <View style={styles.modal}>
               <View style={styles.header}>
-                <Text style={styles.title}>Editar Perfil</Text>
+                <Text style={styles.title}>Edit Profile</Text>
                 <TouchableOpacity
                   onPress={handleClose}
                   disabled={loading}
@@ -104,10 +104,10 @@ export default function EditProfileModal({
 
               <View style={styles.content}>
                 <View style={styles.inputContainer}>
-                  <Text style={styles.label}>Nombre</Text>
+                  <Text style={styles.label}>First Name</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="Ingresa tu nombre"
+                    placeholder="Enter your first name"
                     value={firstName}
                     onChangeText={setFirstName}
                     editable={!loading}
@@ -116,10 +116,10 @@ export default function EditProfileModal({
                 </View>
 
                 <View style={styles.inputContainer}>
-                  <Text style={styles.label}>Apellido</Text>
+                  <Text style={styles.label}>Last Name</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="Ingresa tu apellido"
+                    placeholder="Enter your last name"
                     value={lastName}
                     onChangeText={setLastName}
                     editable={!loading}
@@ -128,16 +128,16 @@ export default function EditProfileModal({
                 </View>
 
                 <View style={styles.inputContainer}>
-                  <Text style={styles.label}>Nombre de usuario</Text>
+                  <Text style={styles.label}>Username</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="Ingresa tu nickname"
+                    placeholder="Enter your username"
                     value={nickname}
                     onChangeText={setNickname}
                     editable={!loading}
                     autoCapitalize="none"
                   />
-                  <Text style={styles.hint}>Mínimo 3 caracteres</Text>
+                  <Text style={styles.hint}>Minimum 3 characters</Text>
                 </View>
 
                 <View style={styles.buttonContainer}>
@@ -145,7 +145,7 @@ export default function EditProfileModal({
                     style={[styles.cancelButton, loading && styles.buttonDisabled]}
                     onPress={handleClose}
                     disabled={loading}>
-                    <Text style={styles.cancelButtonText}>Cancelar</Text>
+                    <Text style={styles.cancelButtonText}>Cancel</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity
@@ -155,7 +155,7 @@ export default function EditProfileModal({
                     {loading ? (
                       <ActivityIndicator color={COLORS.white} />
                     ) : (
-                      <Text style={styles.saveButtonText}>Guardar</Text>
+                      <Text style={styles.saveButtonText}>Save</Text>
                     )}
                   </TouchableOpacity>
                 </View>
